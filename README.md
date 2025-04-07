@@ -1,5 +1,5 @@
 # FeedWise
-TEST MODIFICHE
+
 FeedWise è un'applicazione per la gestione di cataloghi di prodotti, specializzata nell'importazione, tracciamento e interrogazione di feed di prodotti con supporto di un assistente AI.
 
 ## 🚀 Caratteristiche

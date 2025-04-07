@@ -2,7 +2,7 @@
 """
 Interfaccia a riga di comando per interagire con l'assistente AI del catalogo.
 """
-import math
+
 import os
 import argparse
 from typing import List, Dict
