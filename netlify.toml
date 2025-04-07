@@ -12,3 +12,8 @@
   from = "/*"
   to = "/public/index.html"
   status = 200
+
+[[redirects]]
+from = "/favicon.ico"
+to = "/favicon.ico"
+status = 200
