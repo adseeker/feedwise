@@ -1,0 +1,14 @@
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
+  conditions = 
+    # Qui puoi aggiungere condizioni di accesso, come:
+    # - Whitelist di IP
+    # - Richiesta di un token
+    # - Autenticazione
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
