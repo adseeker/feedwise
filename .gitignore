@@ -1,0 +1,39 @@
+# Ambiente virtuale
+venv/
+env/
+.env/
+
+# File di configurazione con credenziali
+config.json
+*.ini
+.env
+
+# File di cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Log
+*.log
+
+# Directory di IDE e editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Directory di build e distribuzioni
+build/
+dist/
+*.egg-info/
+
+# File di sistema
+.DS_Store
+Thumbs.db

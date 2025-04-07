@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block title %}FeedWise - Impostazioni{% endblock %}
+
+{% block styles %}
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+.settings-section {
+    margin-bottom: 1.5rem;
+}
+.settings-header {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+.api-key-input {
+    font-family: monospace;
+}
+.db-info {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+}
+.db-info pre {
+    margin-bottom: 0;
+}
+.nav-pills .nav-link {
+    color: #212529;
+}
+.nav-pills .nav-link.active {
+    background-color: #6c757d;
+    color: white;
+}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1 class="h2">Impostazioni</h1>
+        <p class="text-muted">Configura il funzionamento dell'applicazione</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group mb-4">
+            <a class="list-group-item list-group-item-action active" href="#general" data-bs-toggle="tab">Generale</a>
+            <a class="list-group-item list-group-item-action" href="#api" data-bs-toggle="tab">API e Chiavi</a>
+            <a class="list-group-item list-group-item-action" href="#database" data-bs-toggle="tab">Database</a>
+            <a class="list-group-item list-group-item-action" href="#advanced" data-bs-toggle="tab">Avanzate</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Informazioni</h6>
+                <div class="mb-2">
+                    <small class="text-muted">Versione</small>
+                    <div>1.0.0</div>
+                </div>
+                <div>
+                    <small class="text-muted">Database</small>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i>
+                        <span>Connesso</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- Generale -->
+            <div class="tab-pane fade show active" id="general">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Impostazioni Generali</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="generalSettingsForm">
+                            <div class="mb-3">
+                                <label for="feedUrl" class="form-label">URL Feed Predefinito</label>
+                                <input type="url" class="form-control" id="feedUrl" value="https://repository.mobilifiver.com/public/feed/test_json/test.json">
+                                <div class="form-text">URL utilizzato quando si avvia un'importazione con l'opzione "Predefinito".</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="importTime" class="form-label">Orario Importazione Automatica</label>
+                                <input type="time" class="form-control" id="importTime" value="06:00">
+                                <div class="form-text">Orario in cui viene eseguita l'importazione giornaliera programmata.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="versionFormat" class="form-label">Formato Etichetta Versione</label>
+                                <input type="text" class="form-control" id="versionFormat" value="YYYY-MM-DD">
+                                <div class="form-text">Formato predefinito per le etichette di versione nelle importazioni.</div>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableAutoImport" checked>
+                                <label class="form-check-label" for="enableAutoImport">Abilita importazione automatica</label>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" id="saveGeneralBtn">Salva Impostazioni</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API e Chiavi -->
+            <div class="tab-pane fade" id="api">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Configurazione API</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="apiSettingsForm">
+                            <div class="settings-section">
+                                <h6 class="settings-header">OpenAI API</h6>
+                                <div class="mb-3">
+                                    <label for="openaiKey" class="form-label">Chiave API OpenAI</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control api-key-input" id="openaiKey" value="sk-••••••••••••••••••••••••••••••••••••••••••••••">
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleOpenAI">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Chiave utilizzata per le funzionalità di IA e generazione di testo.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="openaiModel" class="form-label">Modello LLM</label>
+                                    <select class="form-select" id="openaiModel">
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                        <option value="gpt-4">GPT-4</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                    </select>
+                                    <div class="form-text">Modello utilizzato per le risposte dell'assistente AI.</div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" id="saveApiBtn">Salva Impostazioni</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Database -->
+            <div class="tab-pane fade" id="database">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Impostazioni Database</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="db-info mb-4">
+                            <h6>Informazioni Connessione</h6>
+                            <pre>DATABASE_URL = "sqlite:///data/catalog.db"</pre>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="display-4" id="dbSizeValue">0</h3>
+                                        <div class="text-muted">MB Dimensione</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="display-4" id="tablesValue">3</h3>
+                                        <div class="text-muted">Tabelle</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h3 class="display-4" id="rowsValue">0</h3>
+                                        <div class="text-muted">Righe Totali</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary" id="backupBtn">
+                                <i class="bi bi-download me-1"></i> Backup Database
+                            </button>
+                            <button type="button" class="btn btn-danger" id="resetBtn">
+                                <i class="bi bi-trash me-1"></i> Reset Database
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avanzate -->
+            <div class="tab-pane fade" id="advanced">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Impostazioni Avanzate</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="advancedSettingsForm">
+                            <div class="mb-3">
+                                <label for="logLevel" class="form-label">Livello Log</label>
+                                <select class="form-select" id="logLevel">
+                                    <option value="DEBUG">Debug</option>
+                                    <option value="INFO" selected>Info</option>
+                                    <option value="WARNING">Warning</option>
+                                    <option value="ERROR">Error</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="retentionDays" class="form-label">Giorni di conservazione log</label>
+                                <input type="number" class="form-control" id="retentionDays" value="30" min="1" max="365">
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableDebug">
+                                <label class="form-check-label" for="enableDebug">Abilita modalità debug</label>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="enablePerformanceMetrics">
+                                <label class="form-check-label" for="enablePerformanceMetrics">Raccolta metriche di performance</label>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" id="saveAdvancedBtn">Salva Impostazioni</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset DB Modal -->
+<div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-labelledby="resetConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetConfirmModalLabel">Conferma Reset Database</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Attenzione!</strong> Questa operazione è irreversibile.
+                </div>
+                <p>Stai per eliminare tutti i dati dal database. Questa operazione non può essere annullata.</p>
+                <p>Sei sicuro di voler procedere?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" id="confirmResetBtn">Reset Database</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifiche -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div id="settingsToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <strong class="me-auto">FeedWise</strong>
+            <small>Adesso</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Impostazioni salvate con successo!
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurazione toast
+        const toastEl = document.getElementById('settingsToast');
+        const toast = new bootstrap.Toast(toastEl);
+        const toastMessage = document.getElementById('toastMessage');
+        
+        // Toggle visibilità chiave API
+        document.getElementById('toggleOpenAI').addEventListener('click', function() {
+            const input = document.getElementById('openaiKey');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+        
+        // Salva impostazioni generali
+        document.getElementById('saveGeneralBtn').addEventListener('click', function() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            // per salvare le impostazioni
+            
+            toastMessage.textContent = 'Impostazioni generali salvate con successo!';
+            toast.show();
+        });
+        
+        // Salva impostazioni API
+        document.getElementById('saveApiBtn').addEventListener('click', function() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            
+            toastMessage.textContent = 'Configurazione API aggiornata con successo!';
+            toast.show();
+        });
+        
+        // Salva impostazioni avanzate
+        document.getElementById('saveAdvancedBtn').addEventListener('click', function() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            
+            toastMessage.textContent = 'Impostazioni avanzate salvate con successo!';
+            toast.show();
+        });
+        
+        // Mostra modale conferma reset
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            const resetModal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
+            resetModal.show();
+        });
+        
+        // Gestione backup database
+        document.getElementById('backupBtn').addEventListener('click', function() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            // per avviare il backup e scaricare il file
+            
+            toastMessage.textContent = 'Backup del database avviato. Il download inizierà a breve.';
+            toast.show();
+        });
+        
+        // Conferma reset database
+        document.getElementById('confirmResetBtn').addEventListener('click', function() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            
+            const resetModal = bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal'));
+            resetModal.hide();
+            
+            toastMessage.textContent = 'Database resettato con successo!';
+            toast.show();
+        });
+        
+        // Switching tabs
+        document.querySelectorAll('.list-group-item-action').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all items
+                document.querySelectorAll('.list-group-item-action').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Activate tab
+                const targetTab = this.getAttribute('href');
+                const tabElement = document.querySelector(targetTab);
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-pane').forEach(tab => {
+                    tab.classList.remove('show', 'active');
+                });
+                
+                // Show target tab
+                tabElement.classList.add('show', 'active');
+            });
+        });
+        
+        // Funzione per caricare statistiche database (simulata)
+        function loadDatabaseStats() {
+            // In una implementazione reale, qui ci sarebbe una chiamata API
+            // per ottenere le statistiche del database
+            
+            document.getElementById('dbSizeValue').textContent = '1.2';
+            document.getElementById('tablesValue').textContent = '3';
+            document.getElementById('rowsValue').textContent = '1245';
+        }
+        
+        // Carica statistiche all'avvio
+        loadDatabaseStats();
+    });
+</script>
+{% endblock %}

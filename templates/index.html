@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}FeedWise - Dashboard{% endblock %}
+
+{% block styles %}
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.stats-card {
+    text-align: center;
+    border-radius: 10px;
+}
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.stats-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+{% endblock %}
+
+{% block content %}
+<header class="mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="display-5">FeedWise Dashboard</h1>
+            <p class="text-muted">Monitora i tuoi feed di prodotti</p>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-secondary me-2" id="manualImportBtn">
+                <i class="bi bi-cloud-download me-1"></i>
+                Importa Ora
+            </button>
+            <button type="button" class="btn btn-primary" id="refreshData">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Aggiorna
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Stats Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stats-card bg-primary text-white">
+            <div class="card-body">
+                <div class="stats-number" id="totalProducts">--</div>
+                <div class="stats-label">Prodotti Totali</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-success text-white">
+            <div class="card-body">
+                <div class="stats-number" id="totalSyncs">--</div>
+                <div class="stats-label">Sincronizzazioni</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-info text-white">
+            <div class="card-body">
+                <div class="stats-number" id="lastSync">--</div>
+                <div class="stats-label">Ultima Sincronizzazione</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card bg-warning text-dark">
+            <div class="card-body">
+                <div class="stats-number" id="totalChanges">--</div>
+                <div class="stats-label">Modifiche Prodotti</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Syncs -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Sincronizzazioni Recenti</h5>
+        <button class="btn btn-sm btn-outline-primary" id="newSyncBtn">
+            <i class="bi bi-plus-lg me-1"></i>
+            Nuova Importazione
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Versione</th>
+                        <th>Data</th>
+                        <th>Fonte</th>
+                        <th>Prodotti</th>
+                        <th>Aggiunti</th>
+                        <th>Aggiornati</th>
+                        <th>Rimossi</th>
+                        <th>Stato</th>
+                    </tr>
+                </thead>
+                <tbody id="syncsList">
+                    <!-- Dati caricati dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">Nuova Importazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="importForm">
+                    <div class="mb-3">
+                        <label for="importSource" class="form-label">Origine dati</label>
+                        <select class="form-select" id="importSource">
+                            <option value="url">URL remoto</option>
+                            <option value="file">File locale</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="urlInputGroup">
+                        <label for="importUrl" class="form-label">URL del feed JSON</label>
+                        <input type="url" class="form-control" id="importUrl" placeholder="https://esempio.com/feed.json">
+                    </div>
+                    <div class="mb-3 d-none" id="fileInputGroup">
+                        <label for="importFile" class="form-label">File JSON locale</label>
+                        <input type="file" class="form-control" id="importFile" accept=".json">
+                    </div>
+                    <div class="mb-3">
+                        <label for="versionLabel" class="form-label">Etichetta versione (opzionale)</label>
+                        <input type="text" class="form-control" id="versionLabel" placeholder="2025-04-04">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" id="startImportBtn">Avvia Importazione</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Carica i dati all'avvio
+        fetchDashboardData();
+        
+        // Gestione evento bottone aggiorna
+        document.getElementById('refreshData').addEventListener('click', fetchDashboardData);
+        
+        // Gestione evento importazione immediata
+        document.getElementById('manualImportBtn').addEventListener('click', function() {
+            if (confirm('Vuoi avviare un\'importazione immediata con l\'URL predefinito?')) {
+                fetch('/api/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source_type: 'default'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Importazione avviata con successo!');
+                        // Aggiorna i dati dopo qualche secondo
+                        setTimeout(fetchDashboardData, 3000);
+                    } else {
+                        alert('Errore: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Errore durante l\'importazione: ' + error);
+                });
+            }
+        });
+        
+        // Gestione evento nuovo import
+        document.getElementById('newSyncBtn').addEventListener('click', function() {
+            const importModal = new bootstrap.Modal(document.getElementById('importModal'));
+            importModal.show();
+        });
+        
+        // Gestione cambio tipo importazione
+        document.getElementById('importSource').addEventListener('change', function() {
+            const urlGroup = document.getElementById('urlInputGroup');
+            const fileGroup = document.getElementById('fileInputGroup');
+            
+            if (this.value === 'url') {
+                urlGroup.classList.remove('d-none');
+                fileGroup.classList.add('d-none');
+            } else {
+                urlGroup.classList.add('d-none');
+                fileGroup.classList.remove('d-none');
+            }
+        });
+        
+        // Gestione avvio importazione
+        document.getElementById('startImportBtn').addEventListener('click', function() {
+            const sourceType = document.getElementById('importSource').value;
+            const url = document.getElementById('importUrl').value;
+            const versionLabel = document.getElementById('versionLabel').value;
+            
+            // Validazione
+            if (sourceType === 'url' && !url) {
+                alert('Inserisci un URL valido');
+                return;
+            }
+            
+            // Prepara i dati da inviare
+            const requestData = {
+                source_type: sourceType,
+                url: url,
+                version_label: versionLabel
+            };
+            
+            // Chiamata API
+            fetch('/api/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Importazione avviata con successo!');
+                } else {
+                    alert('Errore: ' + data.message);
+                }
+                
+                // Chiudi il modal
+                const importModal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+                importModal.hide();
+                
+                // Aggiorna i dati dopo qualche secondo per vedere i risultati
+                setTimeout(fetchDashboardData, 3000);
+            })
+            .catch(error => {
+                alert('Errore durante la richiesta: ' + error);
+            });
+        });
+    });
+    
+    // Funzione per caricare i dati dalla API
+    function fetchDashboardData() {
+        fetch('/api/dashboard')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Errore nella richiesta API');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Aggiorna statistiche
+                document.getElementById('totalProducts').textContent = data.totalProducts;
+                document.getElementById('totalSyncs').textContent = data.totalSyncs;
+                document.getElementById('lastSync').textContent = data.lastSync;
+                document.getElementById('totalChanges').textContent = data.totalChanges;
+                
+                // Aggiorna la tabella delle sincronizzazioni
+                const syncsList = document.getElementById('syncsList');
+                syncsList.innerHTML = '';
+                
+                data.syncs.forEach(sync => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sync.id}</td>
+                        <td>${sync.version || '-'}</td>
+                        <td>${sync.date}</td>
+                        <td>${sync.source}</td>
+                        <td>${sync.products}</td>
+                        <td class="text-success">${sync.added > 0 ? '+' + sync.added : sync.added}</td>
+                        <td class="text-primary">${sync.updated}</td>
+                        <td class="text-danger">${sync.removed > 0 ? '-' + sync.removed : sync.removed}</td>
+                        <td>${sync.success 
+                            ? '<span class="badge bg-success">Successo</span>' 
+                            : '<span class="badge bg-danger">Errore</span>'}
+                        </td>
+                    `;
+                    syncsList.appendChild(row);
+                });
+                
+                // Aggiorna anche il contatore nel menu principale
+                const catalogCount = document.getElementById('catalogCount');
+                if (catalogCount) {
+                    catalogCount.textContent = data.totalProducts || 0;
+                }
+            })
+            .catch(error => {
+                console.error('Errore caricamento dati:', error);
+                
+                // Mostra messaggio di errore
+                const syncsList = document.getElementById('syncsList');
+                syncsList.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Errore caricamento dati.</td></tr>';
+            });
+    }
+</script>
+{% endblock %}
