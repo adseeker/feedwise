@@ -2,7 +2,7 @@
   from = "/app/*"
   to = "/app/index.html"
   status = 200
-  conditions = 
+  # conditions = 
     # Qui puoi aggiungere condizioni di accesso, come:
     # - Whitelist di IP
     # - Richiesta di un token
