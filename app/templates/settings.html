@@ -3,278 +3,514 @@
 {% block title %}FeedWise - Impostazioni{% endblock %}
 
 {% block styles %}
-.card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+<style>
+.settings-card {
     margin-bottom: 20px;
 }
-.settings-section {
-    margin-bottom: 1.5rem;
+.settings-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-right: 10px;
+}
+.display-5 {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
 }
 .settings-header {
-    border-bottom: 1px solid #dee2e6;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
+    background-color: transparent;
+    border-bottom: none;
+    font-weight: 700;
 }
-.api-key-input {
-    font-family: monospace;
+.version-badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 50rem;
+    background-color: #f2f2f2;
+    color: #555;
 }
-.db-info {
-    background-color: #f8f9fa;
-    border-radius: 0.25rem;
-    padding: 1rem;
-}
-.db-info pre {
-    margin-bottom: 0;
-}
-.nav-pills .nav-link {
-    color: #212529;
-}
-.nav-pills .nav-link.active {
-    background-color: #6c757d;
-    color: white;
-}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-    <div class="col">
-        <h1 class="h2">Impostazioni</h1>
-        <p class="text-muted">Configura il funzionamento dell'applicazione</p>
+<header class="mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="display-5">Impostazioni</h1>
+            <p class="text-muted">Configura l'applicazione FeedWise</p>
+        </div>
     </div>
-</div>
+</header>
 
 <div class="row">
-    <div class="col-md-3">
-        <div class="list-group mb-4">
-            <a class="list-group-item list-group-item-action active" href="#general" data-bs-toggle="tab">Generale</a>
-            <a class="list-group-item list-group-item-action" href="#api" data-bs-toggle="tab">API e Chiavi</a>
-            <a class="list-group-item list-group-item-action" href="#database" data-bs-toggle="tab">Database</a>
-            <a class="list-group-item list-group-item-action" href="#advanced" data-bs-toggle="tab">Avanzate</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-body">
-                <h6 class="card-title">Informazioni</h6>
-                <div class="mb-2">
-                    <small class="text-muted">Versione</small>
-                    <div>1.0.0</div>
-                </div>
-                <div>
-                    <small class="text-muted">Database</small>
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i>
-                        <span>Connesso</span>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-3 mb-4">
+        <div class="list-group sticky-top" id="settings-tabs" role="tablist">
+            <a class="list-group-item list-group-item-action active" id="general-tab" data-bs-toggle="list" href="#general" role="tab" aria-controls="general">
+                <i class="bi bi-gear settings-icon"></i>
+                Generali
+            </a>
+            <a class="list-group-item list-group-item-action" id="feed-tab" data-bs-toggle="list" href="#feed" role="tab" aria-controls="feed">
+                <i class="bi bi-database settings-icon"></i>
+                Feed Dati
+            </a>
+            <a class="list-group-item list-group-item-action" id="notifications-tab" data-bs-toggle="list" href="#notifications" role="tab" aria-controls="notifications">
+                <i class="bi bi-bell settings-icon"></i>
+                Notifiche
+            </a>
+            <a class="list-group-item list-group-item-action" id="ai-tab" data-bs-toggle="list" href="#ai" role="tab" aria-controls="ai">
+                <i class="bi bi-robot settings-icon"></i>
+                Assistente AI
+            </a>
+            <a class="list-group-item list-group-item-action" id="system-tab" data-bs-toggle="list" href="#system" role="tab" aria-controls="system">
+                <i class="bi bi-hdd-stack settings-icon"></i>
+                Sistema
+            </a>
+            <a class="list-group-item list-group-item-action" id="about-tab" data-bs-toggle="list" href="#about" role="tab" aria-controls="about">
+                <i class="bi bi-info-circle settings-icon"></i>
+                Informazioni
+            </a>
         </div>
     </div>
     
     <div class="col-md-9">
-        <div class="tab-content">
-            <!-- Generale -->
-            <div class="tab-pane fade show active" id="general">
-                <div class="card">
-                    <div class="card-header">
+        <div class="tab-content" id="settings-tabContent">
+            <!-- Generali -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
                         <h5 class="mb-0">Impostazioni Generali</h5>
                     </div>
                     <div class="card-body">
                         <form id="generalSettingsForm">
                             <div class="mb-3">
-                                <label for="feedUrl" class="form-label">URL Feed Predefinito</label>
-                                <input type="url" class="form-control" id="feedUrl" value="https://repository.mobilifiver.com/public/feed/test_json/test.json">
-                                <div class="form-text">URL utilizzato quando si avvia un'importazione con l'opzione "Predefinito".</div>
+                                <label for="appName" class="form-label">Nome Applicazione</label>
+                                <input type="text" class="form-control" id="appName" value="FeedWise">
                             </div>
                             
                             <div class="mb-3">
-                                <label for="importTime" class="form-label">Orario Importazione Automatica</label>
-                                <input type="time" class="form-control" id="importTime" value="06:00">
-                                <div class="form-text">Orario in cui viene eseguita l'importazione giornaliera programmata.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="versionFormat" class="form-label">Formato Etichetta Versione</label>
-                                <input type="text" class="form-control" id="versionFormat" value="YYYY-MM-DD">
-                                <div class="form-text">Formato predefinito per le etichette di versione nelle importazioni.</div>
-                            </div>
-                            
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="enableAutoImport" checked>
-                                <label class="form-check-label" for="enableAutoImport">Abilita importazione automatica</label>
-                            </div>
-                            
-                            <button type="button" class="btn btn-primary" id="saveGeneralBtn">Salva Impostazioni</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- API e Chiavi -->
-            <div class="tab-pane fade" id="api">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Configurazione API</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="apiSettingsForm">
-                            <div class="settings-section">
-                                <h6 class="settings-header">OpenAI API</h6>
-                                <div class="mb-3">
-                                    <label for="openaiKey" class="form-label">Chiave API OpenAI</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control api-key-input" id="openaiKey" value="sk-••••••••••••••••••••••••••••••••••••••••••••••">
-                                        <button class="btn btn-outline-secondary" type="button" id="toggleOpenAI">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
-                                    <div class="form-text">Chiave utilizzata per le funzionalità di IA e generazione di testo.</div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="openaiModel" class="form-label">Modello LLM</label>
-                                    <select class="form-select" id="openaiModel">
-                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                                        <option value="gpt-4">GPT-4</option>
-                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                                    </select>
-                                    <div class="form-text">Modello utilizzato per le risposte dell'assistente AI.</div>
-                                </div>
-                            </div>
-                            
-                            <button type="button" class="btn btn-primary" id="saveApiBtn">Salva Impostazioni</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Database -->
-            <div class="tab-pane fade" id="database">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Impostazioni Database</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="db-info mb-4">
-                            <h6>Informazioni Connessione</h6>
-                            <pre>DATABASE_URL = "sqlite:///data/catalog.db"</pre>
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h3 class="display-4" id="dbSizeValue">0</h3>
-                                        <div class="text-muted">MB Dimensione</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h3 class="display-4" id="tablesValue">3</h3>
-                                        <div class="text-muted">Tabelle</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h3 class="display-4" id="rowsValue">0</h3>
-                                        <div class="text-muted">Righe Totali</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-primary" id="backupBtn">
-                                <i class="bi bi-download me-1"></i> Backup Database
-                            </button>
-                            <button type="button" class="btn btn-danger" id="resetBtn">
-                                <i class="bi bi-trash me-1"></i> Reset Database
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Avanzate -->
-            <div class="tab-pane fade" id="advanced">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Impostazioni Avanzate</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="advancedSettingsForm">
-                            <div class="mb-3">
-                                <label for="logLevel" class="form-label">Livello Log</label>
-                                <select class="form-select" id="logLevel">
-                                    <option value="DEBUG">Debug</option>
-                                    <option value="INFO" selected>Info</option>
-                                    <option value="WARNING">Warning</option>
-                                    <option value="ERROR">Error</option>
+                                <label for="appLanguage" class="form-label">Lingua</label>
+                                <select class="form-select" id="appLanguage">
+                                    <option value="it" selected>Italiano</option>
+                                    <option value="en">English</option>
                                 </select>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="retentionDays" class="form-label">Giorni di conservazione log</label>
-                                <input type="number" class="form-control" id="retentionDays" value="30" min="1" max="365">
+                                <label for="timezone" class="form-label">Fuso orario</label>
+                                <select class="form-select" id="timezone">
+                                    <option value="Europe/Rome" selected>Europe/Rome (GMT+1/GMT+2)</option>
+                                    <option value="UTC">UTC</option>
+                                </select>
+                                <div class="form-text">Il fuso orario viene utilizzato per la visualizzazione delle date e per la programmazione delle attività.</div>
                             </div>
                             
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="enableDebug">
-                                <label class="form-check-label" for="enableDebug">Abilita modalità debug</label>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="darkMode">
+                                <label class="form-check-label" for="darkMode">Modalità scura</label>
+                                <div class="form-text">Attiva il tema scuro per l'interfaccia utente.</div>
                             </div>
                             
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="enablePerformanceMetrics">
-                                <label class="form-check-label" for="enablePerformanceMetrics">Raccolta metriche di performance</label>
-                            </div>
-                            
-                            <button type="button" class="btn btn-primary" id="saveAdvancedBtn">Salva Impostazioni</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                Salva Impostazioni
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reset DB Modal -->
-<div class="modal fade" id="resetConfirmModal" tabindex="-1" aria-labelledby="resetConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resetConfirmModalLabel">Conferma Reset Database</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <strong>Attenzione!</strong> Questa operazione è irreversibile.
+            
+            <!-- Feed Dati -->
+            <div class="tab-pane fade" id="feed" role="tabpanel" aria-labelledby="feed-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Configurazione Feed</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="feedSettingsForm">
+                            <div class="mb-3">
+                                <label for="defaultFeedUrl" class="form-label">URL Feed Predefinito</label>
+                                <input type="url" class="form-control" id="defaultFeedUrl" value="https://repository.mobilifiver.com/public/feed/test_json/test.json">
+                                <div class="form-text">URL utilizzato per le importazioni automatiche e manuali predefinite.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="feedFormat" class="form-label">Formato Feed</label>
+                                <select class="form-select" id="feedFormat">
+                                    <option value="json" selected>JSON</option>
+                                    <option value="xml">XML</option>
+                                    <option value="csv">CSV</option>
+                                </select>
+                                <div class="form-text">Formato del feed dati.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="importSchedule" class="form-label">Programmazione Importazioni</label>
+                                <select class="form-select" id="importSchedule">
+                                    <option value="daily" selected>Giornaliera (06:00)</option>
+                                    <option value="twice_daily">Due volte al giorno (06:00, 18:00)</option>
+                                    <option value="hourly">Ogni ora (test/sviluppo)</option>
+                                    <option value="weekly">Settimanale (Lunedì 06:00)</option>
+                                    <option value="disabled">Disabilitata</option>
+                                </select>
+                                <div class="form-text">Frequenza con cui vengono eseguite le importazioni automatiche.</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="saveHistory" checked>
+                                <label class="form-check-label" for="saveHistory">Mantieni cronologia delle importazioni</label>
+                                <div class="form-text">Conserva una cronologia dettagliata di tutte le importazioni e delle modifiche ai prodotti.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="historyRetention" class="form-label">Conservazione Cronologia</label>
+                                <select class="form-select" id="historyRetention">
+                                    <option value="30">30 giorni</option>
+                                    <option value="90" selected>90 giorni</option>
+                                    <option value="180">180 giorni</option>
+                                    <option value="365">1 anno</option>
+                                    <option value="0">Illimitata</option>
+                                </select>
+                                <div class="form-text">Periodo di conservazione della cronologia delle importazioni.</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                Salva Impostazioni
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-primary ms-2" id="testFeedButton">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Testa Connessione Feed
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <p>Stai per eliminare tutti i dati dal database. Questa operazione non può essere annullata.</p>
-                <p>Sei sicuro di voler procedere?</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-danger" id="confirmResetBtn">Reset Database</button>
+            
+            <!-- Notifiche -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Configurazione Notifiche</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="notificationsSettingsForm">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="enableNotifications" checked>
+                                <label class="form-check-label" for="enableNotifications">Abilita notifiche</label>
+                                <div class="form-text">Attiva/disattiva tutte le notifiche del sistema.</div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <p class="fw-bold mb-3">Notifiche per eventi</p>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyImportSuccess" checked>
+                                <label class="form-check-label" for="notifyImportSuccess">Importazione completata con successo</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyImportError" checked>
+                                <label class="form-check-label" for="notifyImportError">Errore durante l'importazione</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyProductChanges" checked>
+                                <label class="form-check-label" for="notifyProductChanges">Modifiche ai prodotti</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyNewProducts">
+                                <label class="form-check-label" for="notifyNewProducts">Nuovi prodotti aggiunti</label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyRemovedProducts" checked>
+                                <label class="form-check-label" for="notifyRemovedProducts">Prodotti rimossi</label>
+                            </div>
+                            
+                            <hr>
+                            
+                            <p class="fw-bold mb-3">Metodi di notifica</p>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyBrowser" checked>
+                                <label class="form-check-label" for="notifyBrowser">Notifiche browser</label>
+                                <div class="form-text">Mostra notifiche nel browser quando l'applicazione è aperta.</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="notifyEmail">
+                                <label class="form-check-label" for="notifyEmail">Notifiche email</label>
+                                <div class="form-text">Invia notifiche via email.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notificationEmail" class="form-label">Email per notifiche</label>
+                                <input type="email" class="form-control" id="notificationEmail" placeholder="tuo@email.com">
+                                <div class="form-text">Indirizzo email per ricevere le notifiche.</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                Salva Impostazioni
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-primary ms-2" id="testNotificationButton">
+                                <i class="bi bi-bell me-1"></i>
+                                Invia Notifica di Test
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Toast Notifiche -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
-    <div id="settingsToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>
-            <strong class="me-auto">FeedWise</strong>
-            <small>Adesso</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body" id="toastMessage">
-            Impostazioni salvate con successo!
+            
+            <!-- Assistente AI -->
+            <div class="tab-pane fade" id="ai" role="tabpanel" aria-labelledby="ai-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Configurazione Assistente AI</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="aiSettingsForm">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="enableAI" checked>
+                                <label class="form-check-label" for="enableAI">Abilita Assistente AI</label>
+                                <div class="form-text">Attiva/disattiva la funzionalità di assistente AI.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="aiApiKey" class="form-label">API Key OpenAI</label>
+                                <input type="password" class="form-control" id="aiApiKey" placeholder="sk-...">
+                                <div class="form-text">Chiave API per l'accesso ai servizi di intelligenza artificiale.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="aiModel" class="form-label">Modello AI</label>
+                                <select class="form-select" id="aiModel">
+                                    <option value="gpt-4">GPT-4 (Più potente, più lento)</option>
+                                    <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (Bilanciato)</option>
+                                </select>
+                                <div class="form-text">Modello utilizzato per rispondere alle domande degli utenti.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="aiTemperature" class="form-label">Temperatura (creatività)</label>
+                                <input type="range" class="form-range" min="0" max="1" step="0.1" value="0.7" id="aiTemperature">
+                                <div class="d-flex justify-content-between">
+                                    <small>Preciso</small>
+                                    <small>Bilanciato</small>
+                                    <small>Creativo</small>
+                                </div>
+                                <div class="form-text">Controlla il livello di creatività nelle risposte dell'assistente.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="systemPrompt" class="form-label">Prompt di sistema</label>
+                                <textarea class="form-control" id="systemPrompt" rows="4">Sei un assistente AI specializzato nel catalogo prodotti di Mobili Fiver. Il tuo compito è aiutare i clienti a trovare informazioni sui prodotti. Basati SEMPRE sui dati forniti e non inventare informazioni.</textarea>
+                                <div class="form-text">Istruzioni generali fornite all'assistente per definire il suo comportamento.</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="aiLogging" checked>
+                                <label class="form-check-label" for="aiLogging">Registra conversazioni con AI</label>
+                                <div class="form-text">Salva le conversazioni con l'assistente per migliorare il servizio.</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                Salva Impostazioni
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-primary ms-2" id="testAIButton">
+                                <i class="bi bi-chat-dots me-1"></i>
+                                Testa Assistente
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sistema -->
+            <div class="tab-pane fade" id="system" role="tabpanel" aria-labelledby="system-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Impostazioni di Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="systemSettingsForm">
+                            <div class="mb-3">
+                                <label for="logLevel" class="form-label">Livello di logging</label>
+                                <select class="form-select" id="logLevel">
+                                    <option value="error">Error (minimo)</option>
+                                    <option value="warning">Warning</option>
+                                    <option value="info" selected>Info (predefinito)</option>
+                                    <option value="debug">Debug (dettagliato)</option>
+                                </select>
+                                <div class="form-text">Controlla la quantità di informazioni registrate nei file di log.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="maxLogSize" class="form-label">Dimensione massima log</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="maxLogSize" value="50">
+                                    <span class="input-group-text">MB</span>
+                                </div>
+                                <div class="form-text">Dimensione massima dei file di log prima della rotazione.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dbBackupSchedule" class="form-label">Programmazione backup database</label>
+                                <select class="form-select" id="dbBackupSchedule">
+                                    <option value="daily" selected>Giornaliero</option>
+                                    <option value="weekly">Settimanale</option>
+                                    <option value="never">Mai</option>
+                                </select>
+                                <div class="form-text">Frequenza con cui vengono eseguiti i backup automatici del database.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="backupRetention" class="form-label">Conservazione backup</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="backupRetention" value="7">
+                                    <span class="input-group-text">giorni</span>
+                                </div>
+                                <div class="form-text">Durata di conservazione dei backup del database.</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="compressBackups" checked>
+                                <label class="form-check-label" for="compressBackups">Comprimi backup</label>
+                                <div class="form-text">Comprimi i file di backup per risparmiare spazio.</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                Salva Impostazioni
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-primary ms-2" id="backupNowButton">
+                                <i class="bi bi-download me-1"></i>
+                                Esegui Backup Ora
+                            </button>
+                            
+                            <hr>
+                            
+                            <h6 class="mb-3">Operazioni di manutenzione</h6>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-secondary" id="optimizeDatabaseButton">
+                                    <i class="bi bi-speedometer2 me-1"></i>
+                                    Ottimizza Database
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-secondary" id="clearCacheButton">
+                                    <i class="bi bi-trash me-1"></i>
+                                    Svuota Cache
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-danger" id="resetAppButton">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Ripristina Impostazioni di Fabbrica
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informazioni -->
+            <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Informazioni su FeedWise</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-box-seam text-primary" style="font-size: 4rem;"></i>
+                            <h2 class="mt-2">FeedWise</h2>
+                            <p class="text-muted">Sistema di gestione feed di prodotti</p>
+                            <span class="version-badge">Versione 1.0.0</span>
+                        </div>
+                        
+                        <p class="mb-4">
+                            FeedWise è un'applicazione per la gestione e il monitoraggio di feed di prodotti. 
+                            Ti permette di importare, visualizzare e analizzare cataloghi di prodotti da varie fonti esterne.
+                        </p>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="fw-bold">Versione</div>
+                                <p>1.0.0 (Release)</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="fw-bold">Data rilascio</div>
+                                <p>7 Aprile 2025</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="fw-bold">Framework</div>
+                                <p>Flask 2.3.3</p>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3">Informazioni di sistema</h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Database</th>
+                                    <td>SQLite 3.39.4</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Python</th>
+                                    <td>3.13.0</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Ambiente</th>
+                                    <td>Sviluppo</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Sistema operativo</th>
+                                    <td>macOS</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Dimensione database</th>
+                                    <td>1.2 MB</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Uptime</th>
+                                    <td>4 ore, 32 minuti</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-outline-primary" id="checkUpdatesButton">
+                                <i class="bi bi-cloud-download me-1"></i>
+                                Controlla Aggiornamenti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card settings-card">
+                    <div class="card-header settings-header">
+                        <h5 class="mb-0">Licenza</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Questo software è distribuito con licenza MIT. Sei libero di utilizzare, modificare e distribuire 
+                            il software secondo i termini della licenza.
+                        </p>
+                        <p class="small text-muted">
+                            Copyright © 2025 FeedWise<br>
+                            Tutti i diritti riservati.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -283,117 +519,86 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Configurazione toast
-        const toastEl = document.getElementById('settingsToast');
-        const toast = new bootstrap.Toast(toastEl);
-        const toastMessage = document.getElementById('toastMessage');
+        // Gestione form impostazioni generali
+        document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impostazioni generali salvate con successo!');
+        });
         
-        // Toggle visibilità chiave API
-        document.getElementById('toggleOpenAI').addEventListener('click', function() {
-            const input = document.getElementById('openaiKey');
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
+        // Gestione form impostazioni feed
+        document.getElementById('feedSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impostazioni feed salvate con successo!');
+        });
+        
+        // Gestione form impostazioni notifiche
+        document.getElementById('notificationsSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impostazioni notifiche salvate con successo!');
+        });
+        
+        // Gestione form impostazioni AI
+        document.getElementById('aiSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impostazioni AI salvate con successo!');
+        });
+        
+        // Gestione form impostazioni sistema
+        document.getElementById('systemSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Impostazioni sistema salvate con successo!');
+        });
+        
+        // Gestione evento test feed
+        document.getElementById('testFeedButton').addEventListener('click', function() {
+            alert('Test connessione feed completato con successo!');
+        });
+        
+        // Gestione evento test notifica
+        document.getElementById('testNotificationButton').addEventListener('click', function() {
+            alert('Notifica di test inviata con successo!');
+        });
+        
+        // Gestione evento test AI
+        document.getElementById('testAIButton').addEventListener('click', function() {
+            alert('Test assistente AI completato con successo!');
+        });
+        
+        // Gestione evento backup ora
+        document.getElementById('backupNowButton').addEventListener('click', function() {
+            alert('Backup eseguito con successo!');
+        });
+        
+        // Gestione evento ottimizza database
+        document.getElementById('optimizeDatabaseButton').addEventListener('click', function() {
+            alert('Ottimizzazione database completata con successo!');
+        });
+        
+        // Gestione evento svuota cache
+        document.getElementById('clearCacheButton').addEventListener('click', function() {
+            alert('Cache svuotata con successo!');
+        });
+        
+        // Gestione evento reset applicazione
+        document.getElementById('resetAppButton').addEventListener('click', function() {
+            if (confirm('Sei sicuro di voler ripristinare le impostazioni di fabbrica? Questa operazione non può essere annullata.')) {
+                alert('Impostazioni ripristinate con successo!');
             }
         });
         
-        // Salva impostazioni generali
-        document.getElementById('saveGeneralBtn').addEventListener('click', function() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            // per salvare le impostazioni
-            
-            toastMessage.textContent = 'Impostazioni generali salvate con successo!';
-            toast.show();
+        // Gestione evento controllo aggiornamenti
+        document.getElementById('checkUpdatesButton').addEventListener('click', function() {
+            alert('Nessun aggiornamento disponibile. Stai utilizzando l\'ultima versione!');
         });
         
-        // Salva impostazioni API
-        document.getElementById('saveApiBtn').addEventListener('click', function() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            
-            toastMessage.textContent = 'Configurazione API aggiornata con successo!';
-            toast.show();
+        // Toggle per campo email notifiche
+        document.getElementById('notifyEmail').addEventListener('change', function() {
+            const emailField = document.getElementById('notificationEmail');
+            emailField.disabled = !this.checked;
         });
         
-        // Salva impostazioni avanzate
-        document.getElementById('saveAdvancedBtn').addEventListener('click', function() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            
-            toastMessage.textContent = 'Impostazioni avanzate salvate con successo!';
-            toast.show();
-        });
-        
-        // Mostra modale conferma reset
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            const resetModal = new bootstrap.Modal(document.getElementById('resetConfirmModal'));
-            resetModal.show();
-        });
-        
-        // Gestione backup database
-        document.getElementById('backupBtn').addEventListener('click', function() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            // per avviare il backup e scaricare il file
-            
-            toastMessage.textContent = 'Backup del database avviato. Il download inizierà a breve.';
-            toast.show();
-        });
-        
-        // Conferma reset database
-        document.getElementById('confirmResetBtn').addEventListener('click', function() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            
-            const resetModal = bootstrap.Modal.getInstance(document.getElementById('resetConfirmModal'));
-            resetModal.hide();
-            
-            toastMessage.textContent = 'Database resettato con successo!';
-            toast.show();
-        });
-        
-        // Switching tabs
-        document.querySelectorAll('.list-group-item-action').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Remove active class from all items
-                document.querySelectorAll('.list-group-item-action').forEach(i => {
-                    i.classList.remove('active');
-                });
-                
-                // Add active class to clicked item
-                this.classList.add('active');
-                
-                // Activate tab
-                const targetTab = this.getAttribute('href');
-                const tabElement = document.querySelector(targetTab);
-                
-                // Hide all tabs
-                document.querySelectorAll('.tab-pane').forEach(tab => {
-                    tab.classList.remove('show', 'active');
-                });
-                
-                // Show target tab
-                tabElement.classList.add('show', 'active');
-            });
-        });
-        
-        // Funzione per caricare statistiche database (simulata)
-        function loadDatabaseStats() {
-            // In una implementazione reale, qui ci sarebbe una chiamata API
-            // per ottenere le statistiche del database
-            
-            document.getElementById('dbSizeValue').textContent = '1.2';
-            document.getElementById('tablesValue').textContent = '3';
-            document.getElementById('rowsValue').textContent = '1245';
-        }
-        
-        // Carica statistiche all'avvio
-        loadDatabaseStats();
+        // Inizializzazione stato campo email notifiche
+        document.getElementById('notificationEmail').disabled = !document.getElementById('notifyEmail').checked;
     });
 </script>
 {% endblock %}

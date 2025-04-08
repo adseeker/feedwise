@@ -1,3 +1,6 @@
+"""
+Importatore di catalogo prodotti da feed JSON
+"""
 import json
 import os
 import requests
@@ -6,18 +9,31 @@ import logging
 from typing import Dict, List, Any, Optional
 
 from sqlalchemy.orm import Session
-from models import Product, CatalogSync, ProductChange
-from database import init_db, DatabaseSession
+from app.models.models import Product, CatalogSync, ProductChange
 
-# Configurazione logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Logger
 logger = logging.getLogger("catalog_importer")
 
 class CatalogImporter:
+    """
+    Classe per importare cataloghi di prodotti da JSON esterno o locale.
+    
+    Gestisce l'aggiunta di nuovi prodotti, l'aggiornamento di quelli esistenti
+    e tiene traccia delle modifiche.
+    """
     def __init__(self, db_session: Session, source_url: str = None, json_file: str = None, version_label: str = None):
+        """
+        Inizializza l'importatore di catalogo.
+        
+        Args:
+            db_session (Session): Sessione del database SQLAlchemy
+            source_url (str, optional): URL da cui recuperare il JSON
+            json_file (str, optional): Percorso del file JSON locale
+            version_label (str, optional): Etichetta versione per il registro di sincronizzazione
+        
+        Raises:
+            ValueError: Se non viene specificato né source_url né json_file
+        """
         self.db = db_session
         self.source_url = source_url
         self.json_file = json_file
@@ -25,10 +41,9 @@ class CatalogImporter:
         if not source_url and not json_file:
             raise ValueError("È necessario specificare o source_url o json_file")
             
-        # Correzione: rimuovi la chiamata extra a ()
         self.sync_record = CatalogSync(
             source_url=source_url if source_url else f"file://{os.path.abspath(json_file)}",
-            started_at=datetime.now(timezone.utc),  # Rimuovi ()
+            started_at=datetime.now(timezone.utc),
             import_version=version_label
         )
         self.db.add(self.sync_record)
@@ -41,6 +56,13 @@ class CatalogImporter:
         logger.info(log_message)
     
     def fetch_catalog(self) -> Optional[List[Dict[str, Any]]]:
+        """
+        Recupera il catalogo prodotti dalla fonte specificata.
+        
+        Returns:
+            Optional[List[Dict[str, Any]]]: Lista di prodotti in formato dizionario
+                                           o None in caso di errore
+        """
         try:
             if self.source_url:
                 logger.info(f"Recupero catalogo da URL: {self.source_url}")
@@ -69,6 +91,12 @@ class CatalogImporter:
             return None
     
     def import_catalog(self) -> bool:
+        """
+        Esegue l'importazione completa del catalogo.
+        
+        Returns:
+            bool: True se l'importazione è avvenuta con successo, False altrimenti
+        """
         products_data = self.fetch_catalog()
         if not products_data:
             return False
@@ -137,6 +165,15 @@ class CatalogImporter:
             return False
     
     def _preprocess_product_data(self, product_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Preelabora i dati del prodotto prima dell'importazione.
+        
+        Args:
+            product_data (Dict[str, Any]): Dati grezzi del prodotto
+            
+        Returns:
+            Dict[str, Any]: Dati preprocessati
+        """
         return {
             key: json.dumps(value) if isinstance(value, list) 
             else (value if value is not None else '')
@@ -144,12 +181,19 @@ class CatalogImporter:
         }
     
     def _add_product(self, product_data: Dict[str, Any]) -> Product:
+        """
+        Aggiunge un nuovo prodotto al database.
+        
+        Args:
+            product_data (Dict[str, Any]): Dati del prodotto
+            
+        Returns:
+            Product: Istanza del nuovo prodotto
+        """
         # Conversione valori numerici
         price = float(product_data.get("price", 0)) if product_data.get("price") else None
         sale_price = float(product_data.get("sale_price", 0)) if product_data.get("sale_price") else None
         
-        # Non ci sono conversioni speciali da fare per availability_date
-                
         # Crea il prodotto con tutti i campi disponibili
         product = Product(
             id=product_data.get("id"),
@@ -183,6 +227,16 @@ class CatalogImporter:
         return product
     
     def _update_product(self, product: Product, product_data: Dict[str, Any]) -> List[ProductChange]:
+        """
+        Aggiorna un prodotto esistente e registra le modifiche.
+        
+        Args:
+            product (Product): Prodotto esistente da aggiornare
+            product_data (Dict[str, Any]): Nuovi dati del prodotto
+            
+        Returns:
+            List[ProductChange]: Lista delle modifiche effettuate
+        """
         changes = []
         update_fields = {
             'title': str,
@@ -226,44 +280,20 @@ class CatalogImporter:
                         )
                     )
         
+        if changes:
+            self.db.add_all(changes)
+        
         product.last_synced = datetime.now(timezone.utc)
         return changes
     
     def _update_sync_record(self, **kwargs):
+        """
+        Aggiorna il record di sincronizzazione con i risultati.
+        
+        Args:
+            **kwargs: Coppie chiave-valore da aggiornare
+        """
         for key, value in kwargs.items():
             setattr(self.sync_record, key, value)
         self.sync_record.completed_at = datetime.now(timezone.utc)
         self.db.commit()
-
-# Script principale invariato
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Importatore di catalogo JSON nel database SQLite")
-    parser.add_argument("--url", help="URL da cui recuperare il catalogo JSON")
-    parser.add_argument("--file", help="File JSON locale da importare")
-    parser.add_argument("--init-db", action="store_true", help="Inizializza il database prima dell'importazione")
-    
-    args = parser.parse_args()
-    
-    if args.init_db:
-        init_db()
-    
-    if not args.url and not args.file:
-        print("Errore: Specificare --url o --file")
-        exit(1)
-    
-    with DatabaseSession() as db:
-        importer = CatalogImporter(
-            db_session=db,
-            source_url=args.url,
-            json_file=args.file
-        )
-        
-        success = importer.import_catalog()
-        
-        if success:
-            print("✅ Importazione completata con successo!")
-        else:
-            print("❌ Errore durante l'importazione")
-            exit(1)

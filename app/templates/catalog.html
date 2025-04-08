@@ -3,233 +3,262 @@
 {% block title %}FeedWise - Catalogo Prodotti{% endblock %}
 
 {% block styles %}
-.product-img {
-    width: 80px;
-    height: 80px;
+<style>
+.product-table {
+    font-size: 0.9rem;
+}
+.product-image {
+    width: 40px;
+    height: 40px;
     object-fit: contain;
-    border: 1px solid #dee2e6;
-    background-color: white;
+    border-radius: 4px;
 }
-.table-responsive {
-    border-radius: 10px;
-    overflow: hidden;
-}
-.product-title {
-    font-weight: 500;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.product-description {
-    font-size: 0.85rem;
-    color: #6c757d;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.filters {
+.product-filters {
     background-color: #f8f9fa;
     border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 1.5rem;
 }
-.badge {
-    font-weight: normal;
-    padding: 5px 10px;
+.product-price {
+    font-weight: 700;
 }
-.pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
+.product-sale-price {
+    color: var(--primary-color);
+    font-weight: 800;
 }
-.price {
-    font-weight: 600;
+.original-price {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+    font-size: 0.9em;
 }
-.sale-price {
-    color: #dc3545;
+.product-row:hover {
+    background-color: rgba(var(--gradient-start-rgb), 0.05);
 }
-.modal-body {
-    padding: 20px;
+.display-5 {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
 }
-.modal-img {
-    max-width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-    margin-bottom: 20px;
-}
-.modal-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-.text-muted-small {
-    font-size: 0.8rem;
-    color: #6c757d;
-}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Catalogo Prodotti</h1>
-    <div>
-        <span class="badge bg-secondary" id="totalProducts">0 Prodotti</span>
-    </div>
-</div>
-
-<div class="filters">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="input-group">
-                <input type="text" class="form-control" id="searchInput" placeholder="Cerca prodotti...">
-                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
+<header class="mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="display-5">Catalogo Prodotti</h1>
+            <p class="text-muted">Esplora e gestisci il catalogo dei prodotti</p>
         </div>
-        <div class="col-md-3">
-            <select class="form-select" id="categoryFilter">
-                <option value="">Tutte le categorie</option>
-                <!-- Categories loaded dynamically -->
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" id="availabilityFilter">
-                <option value="">Tutte le disponibilità</option>
-                <option value="in_stock">Disponibile</option>
-                <option value="out_of_stock">Esaurito</option>
-                <option value="backorder">Backorder</option>
-                <option value="preorder">Preordine</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" id="googleCategoryFilter">
-                <option value="">Tutte le categorie Google</option>
-                <!-- Google categories loaded dynamically -->
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-outline-secondary w-100" id="resetBtn" title="Resetta filtri">
-                <i class="bi bi-arrow-counterclockwise"></i>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" id="refreshProducts">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Aggiorna
             </button>
         </div>
     </div>
-</div>
+</header>
 
-<div class="card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">Immagine</th>
-                        <th scope="col">SKU</th>
-                        <th scope="col" style="width: 20%">Prodotto</th>
-                        <th scope="col">Prezzo</th>
-                        <th scope="col">Disponibilità</th>
-                        <th scope="col">Data Disponibilità</th>
-                        <th scope="col">Categoria</th>
-                        <th scope="col">Google Category</th>
-                        <th scope="col" class="text-end">Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody">
-                    <!-- Products loaded dynamically -->
-                </tbody>
-            </table>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="product-filters mb-4">
+            <h5 class="mb-3">Filtri</h5>
+            
+            <div class="mb-3">
+                <label for="searchProduct" class="form-label">Cerca</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchProduct" placeholder="Nome, ID, marca...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="filterBrand" class="form-label">Marca</label>
+                <select class="form-select" id="filterBrand">
+                    <option value="">Tutte le marche</option>
+                    <!-- Opzioni aggiunte dinamicamente -->
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="filterAvailability" class="form-label">Disponibilità</label>
+                <select class="form-select" id="filterAvailability">
+                    <option value="">Tutte</option>
+                    <option value="in stock">In stock</option>
+                    <option value="out of stock">Esaurito</option>
+                    <option value="preorder">Preordine</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Prezzo</label>
+                <div class="row g-2">
+                    <div class="col">
+                        <input type="number" class="form-control" id="minPrice" placeholder="Min €">
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" id="maxPrice" placeholder="Max €">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary w-100" id="applyFilters">
+                <i class="bi bi-funnel me-1"></i>
+                Applica Filtri
+            </button>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Statistiche</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="text-muted small">Totale prodotti</div>
+                    <div class="fw-bold fs-5" id="totalProductsCount">-</div>
+                </div>
+                <div class="mb-3">
+                    <div class="text-muted small">Prezzo medio</div>
+                    <div class="fw-bold fs-5" id="averagePrice">-</div>
+                </div>
+                <div class="mb-3">
+                    <div class="text-muted small">Prodotti in offerta</div>
+                    <div class="fw-bold fs-5" id="onSaleCount">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 d-inline">Prodotti</h5>
+                    <small class="text-muted ms-2" id="productsShowing"></small>
+                </div>
+                <div>
+                    <div class="input-group input-group-sm">
+                        <label class="input-group-text" for="sortProducts">Ordina per</label>
+                        <select class="form-select form-select-sm" id="sortProducts">
+                            <option value="id">ID</option>
+                            <option value="title">Nome</option>
+                            <option value="price">Prezzo (crescente)</option>
+                            <option value="price_desc">Prezzo (decrescente)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover product-table mb-0" id="productsTable">
+                        <thead class="sticky-top">
+                            <tr>
+                                <th>Immagine</th>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Marca</th>
+                                <th>Prezzo</th>
+                                <th>Disponibilità</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsList">
+                            <!-- Data loaded dynamically -->
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Caricamento...</span>
+                                    </div>
+                                    <p class="mt-2">Caricamento prodotti...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="pagination-container mt-3">
-    <div>
-        <select class="form-select form-select-sm" id="pageSizeSelect">
-            <option value="10">10 per pagina</option>
-            <option value="25">25 per pagina</option>
-            <option value="50">50 per pagina</option>
-            <option value="100">100 per pagina</option>
-        </select>
-    </div>
-    <nav aria-label="Product navigation">
-        <ul class="pagination mb-0" id="pagination">
-            <!-- Pagination loaded dynamically -->
-        </ul>
-    </nav>
-</div>
-
-<!-- Product Detail Modal -->
+<!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Dettaglio Prodotto</h5>
+                <h5 class="modal-title" id="productModalLabel">Dettagli Prodotto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-5 text-center mb-3 mb-md-0">
-                        <img src="" alt="Product" class="modal-img" id="modalImg">
-                        <div class="d-grid gap-2 mt-2">
-                            <a href="#" class="btn btn-primary btn-sm" id="productLink" target="_blank">
-                                <i class="bi bi-box-arrow-up-right me-1"></i>Vedi Prodotto
+                    <div class="col-md-4 text-center mb-4 mb-md-0">
+                        <img id="modalProductImage" src="/api/placeholder.png" alt="Product Image" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: contain;">
+                        <div>
+                            <span class="badge bg-primary mb-2" id="modalProductId">ID</span>
+                            <span class="badge bg-secondary mb-2" id="modalProductBrand">Brand</span>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4 id="modalProductTitle">Product Title</h4>
+                        <p class="text-muted" id="modalProductDescription">Description</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Prezzo:</strong>
+                                    <span id="modalProductPrice" class="product-price ms-2">€0.00</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Disponibilità:</strong>
+                                    <span id="modalProductAvailability" class="ms-2">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Materiale:</strong>
+                                    <span id="modalProductMaterial" class="ms-2">-</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Colore:</strong>
+                                    <span id="modalProductColor" class="ms-2">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Categoria:</strong>
+                                    <span id="modalProductCategory" class="ms-2">-</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <strong>Condizione:</strong>
+                                    <span id="modalProductCondition" class="ms-2">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="#" id="modalProductLink" target="_blank" class="btn btn-outline-primary">
+                                <i class="bi bi-link-45deg me-1"></i>
+                                Visualizza sul sito
                             </a>
                         </div>
                     </div>
-                    <div class="col-md-7">
-                        <h2 class="modal-title mb-2" id="modalTitle">Titolo Prodotto</h2>
-                        <div class="d-flex mb-3">
-                            <div class="me-3">
-                                <span class="text-muted-small">SKU:</span>
-                                <div id="modalSku">ABC123</div>
-                            </div>
-                            <div>
-                                <span class="text-muted-small">Categoria:</span>
-                                <div id="modalCategory">Categoria</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <span class="text-muted-small">Prezzo:</span>
-                            <div>
-                                <span class="price" id="modalPrice">€99.99</span>
-                                <span class="sale-price ms-2" id="modalSalePrice"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <span class="text-muted-small">Disponibilità:</span>
-                            <div class="d-flex align-items-center">
-                                <span class="badge me-2" id="modalAvailabilityBadge">Disponibilità</span>
-                                <span id="modalAvailabilityDate"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <span class="text-muted-small">Categoria Google:</span>
-                            <div id="modalGoogleCategory">Categoria Google</div>
-                        </div>
-                        <div class="mb-3">
-                            <span class="text-muted-small">Descrizione:</span>
-                            <div id="modalDescription">Descrizione prodotto...</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <span class="text-muted-small">Colore:</span>
-                                <div id="modalColor">Colore</div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <span class="text-muted-small">Materiale:</span>
-                                <div id="modalMaterial">Materiale</div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <span class="text-muted-small">Marca:</span>
-                                <div id="modalBrand">Marca</div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <span class="text-muted-small">Condizione:</span>
-                                <div id="modalCondition">Nuova</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
             </div>
         </div>
     </div>
@@ -238,413 +267,326 @@
 
 {% block scripts %}
 <script>
+    // Variabili globali
+    let allProducts = [];
+    let filteredProducts = [];
+    
     document.addEventListener('DOMContentLoaded', function() {
-        // State variables
-        let products = [];
-        let filteredProducts = [];
-        let currentPage = 1;
-        let pageSize = 10;
-        let filters = {
-            search: '',
-            category: '',
-            availability: '',
-            googleCategory: ''
-        };
-
-        // DOM elements
-        const productTableBody = document.getElementById('productTableBody');
-        const totalProductsEl = document.getElementById('totalProducts');
-        const paginationEl = document.getElementById('pagination');
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const availabilityFilter = document.getElementById('availabilityFilter');
-        const googleCategoryFilter = document.getElementById('googleCategoryFilter');
-        const resetBtn = document.getElementById('resetBtn');
-        const pageSizeSelect = document.getElementById('pageSizeSelect');
-
-        // Fetch products from API
-        function fetchProducts() {
-            fetch('/api/products')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    products = data;
-                    filteredProducts = [...products];
-                    updateTotalCount();
-                    populateFilters();
-                    renderProducts();
-                })
-                .catch(error => {
-                    console.error('Error fetching products:', error);
-                    productTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="9" class="text-center py-4">
-                                <div class="text-danger mb-2">Errore durante il caricamento dei prodotti</div>
-                                <button class="btn btn-sm btn-outline-primary" onclick="fetchProducts()">Riprova</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-        }
-
-        // Update display of total products count
-        function updateTotalCount() {
-            totalProductsEl.textContent = `${filteredProducts.length} Prodotti`;
-        }
-
-        // Populate filter dropdowns
-        function populateFilters() {
-            // Get unique categories and Google categories
-            const categories = [...new Set(products.filter(p => p.product_type).map(p => p.product_type))].sort();
-            const googleCategories = [...new Set(products.filter(p => p.google_product_category).map(p => p.google_product_category))].sort();
-
-            // Clear existing options except the first one
-            categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>';
-            googleCategoryFilter.innerHTML = '<option value="">Tutte le categorie Google</option>';
-
-            // Add new options
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categoryFilter.appendChild(option);
-            });
-
-            googleCategories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                googleCategoryFilter.appendChild(option);
-            });
-        }
-
-        // Apply filters to products
-        function applyFilters() {
-            filteredProducts = products.filter(product => {
-                const matchesSearch = !filters.search || 
-                    (product.title && product.title.toLowerCase().includes(filters.search.toLowerCase())) ||
-                    (product.description && product.description.toLowerCase().includes(filters.search.toLowerCase())) ||
-                    (product.id && product.id.toLowerCase().includes(filters.search.toLowerCase()));
+        // Carica tutti i prodotti all'avvio
+        fetchProducts();
+        
+        // Gestione evento bottone aggiorna
+        document.getElementById('refreshProducts').addEventListener('click', fetchProducts);
+        
+        // Gestione ricerca
+        document.getElementById('searchProduct').addEventListener('input', applyFilters);
+        document.getElementById('clearSearch').addEventListener('click', function() {
+            document.getElementById('searchProduct').value = '';
+            applyFilters();
+        });
+        
+        // Gestione eventi filtri
+        document.getElementById('filterBrand').addEventListener('change', applyFilters);
+        document.getElementById('filterAvailability').addEventListener('change', applyFilters);
+        document.getElementById('minPrice').addEventListener('input', applyFilters);
+        document.getElementById('maxPrice').addEventListener('input', applyFilters);
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        
+        // Gestione ordinamento
+        document.getElementById('sortProducts').addEventListener('change', sortProductsTable);
+        
+        // Inizializza tooltip di Bootstrap
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    
+    // Funzione per caricare i prodotti
+    function fetchProducts() {
+        // Mostra loader
+        document.getElementById('productsList').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Caricamento...</span>
+                    </div>
+                    <p class="mt-2">Caricamento prodotti...</p>
+                </td>
+            </tr>
+        `;
+        
+        // Chiamata API
+        fetch('/api/products')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Errore nella richiesta API');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Salva i dati completi
+                allProducts = data;
                 
-                const matchesCategory = !filters.category || 
-                    (product.product_type && product.product_type === filters.category);
+                // Applica filtri attuali
+                applyFilters();
                 
-                const matchesAvailability = !filters.availability || 
-                    (product.availability && product.availability.toLowerCase().includes(filters.availability.toLowerCase()));
+                // Popola opzioni filtro marche
+                populateBrandFilter(data);
                 
-                const matchesGoogleCategory = !filters.googleCategory || 
-                    (product.google_product_category && product.google_product_category === filters.googleCategory);
+                // Aggiorna statistiche
+                updateStatistics(data);
+            })
+            .catch(error => {
+                console.error('Errore caricamento prodotti:', error);
                 
-                return matchesSearch && matchesCategory && matchesAvailability && matchesGoogleCategory;
-            });
-
-            currentPage = 1;
-            updateTotalCount();
-            renderProducts();
-        }
-
-        // Reset all filters
-        function resetFilters() {
-            filters = {
-                search: '',
-                category: '',
-                availability: '',
-                googleCategory: ''
-            };
-
-            searchInput.value = '';
-            categoryFilter.value = '';
-            availabilityFilter.value = '';
-            googleCategoryFilter.value = '';
-
-            filteredProducts = [...products];
-            currentPage = 1;
-            updateTotalCount();
-            renderProducts();
-        }
-
-        // Render products for current page
-        function renderProducts() {
-            const startIndex = (currentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-            if (paginatedProducts.length === 0) {
-                productTableBody.innerHTML = `
+                document.getElementById('productsList').innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center py-4">
-                            <i class="bi bi-search me-2"></i>Nessun prodotto trovato
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill fs-2 mb-3"></i>
+                            <p>Errore durante il caricamento dei prodotti. Riprova più tardi.</p>
                         </td>
                     </tr>
                 `;
-            } else {
-                productTableBody.innerHTML = '';
-                
-                paginatedProducts.forEach(product => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <img src="${product.image_link || '/static/placeholder.png'}" 
-                                 alt="${product.title || 'Prodotto'}" 
-                                 class="product-img" 
-                                 onerror="this.src='/static/placeholder.png'">
-                        </td>
-                        <td>${product.id || '-'}</td>
-                        <td>
-                            <div class="product-title">${product.title || 'Titolo non disponibile'}</div>
-                            <div class="product-description">${product.description || ''}</div>
-                        </td>
-                        <td>
-                            <div class="price">${formatPrice(product.price)}</div>
-                            ${product.sale_price ? `<div class="sale-price">${formatPrice(product.sale_price)}</div>` : ''}
-                        </td>
-                        <td>
-                            <span class="badge ${getAvailabilityBadgeClass(product.availability)}">
-                                ${formatAvailability(product.availability)}
-                            </span>
-                        </td>
-                        <td>${formatAvailabilityDate(product.availability, product.availability_date)}</td>
-                        <td>${product.product_type || '-'}</td>
-                        <td>${formatGoogleCategory(product.google_product_category)}</td>
-                        <td class="text-end">
-                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                    onclick="showProductDetail(${products.indexOf(product)})">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </td>
-                    `;
-                    productTableBody.appendChild(row);
+            });
+    }
+    
+    // Applica filtri ai prodotti
+    function applyFilters() {
+        if (!allProducts || allProducts.length === 0) return;
+        
+        const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+        const brand = document.getElementById('filterBrand').value;
+        const availability = document.getElementById('filterAvailability').value;
+        const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+        const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Number.MAX_SAFE_INTEGER;
+        
+        // Filtra prodotti
+        filteredProducts = allProducts.filter(product => {
+            // Filtra per termine di ricerca
+            const matchesSearch = searchTerm === '' || 
+                                (product.id && product.id.toLowerCase().includes(searchTerm)) || 
+                                (product.title && product.title.toLowerCase().includes(searchTerm)) ||
+                                (product.brand && product.brand.toLowerCase().includes(searchTerm));
+            
+            // Filtra per marca
+            const matchesBrand = brand === '' || (product.brand && product.brand === brand);
+            
+            // Filtra per disponibilità
+            const matchesAvailability = availability === '' || 
+                                    (product.availability && product.availability.toLowerCase().includes(availability.toLowerCase()));
+            
+            // Filtra per prezzo
+            const price = parseFloat(product.price) || 0;
+            const matchesPrice = price >= minPrice && price <= maxPrice;
+            
+            return matchesSearch && matchesBrand && matchesAvailability && matchesPrice;
+        });
+        
+        // Aggiorna tabella
+        renderProductsTable(filteredProducts);
+    }
+    
+    // Ordina tabella prodotti
+    function sortProductsTable() {
+        if (!filteredProducts || filteredProducts.length === 0) return;
+        
+        const sortBy = document.getElementById('sortProducts').value;
+        
+        // Ordina prodotti
+        switch(sortBy) {
+            case 'id':
+                filteredProducts.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+                break;
+            case 'title':
+                filteredProducts.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                break;
+            case 'price':
+                filteredProducts.sort((a, b) => {
+                    const priceA = parseFloat(a.price) || 0;
+                    const priceB = parseFloat(b.price) || 0;
+                    return priceA - priceB;
                 });
-            }
-
-            renderPagination();
-        }
-
-        // Format price with currency symbol
-        function formatPrice(price) {
-            if (!price) return '-';
-            return '€' + parseFloat(price).toFixed(2);
-        }
-        
-        // Format availability status
-        function formatAvailability(availability) {
-            if (!availability) return 'Non specificata';
-            
-            const lowerAvail = availability.toLowerCase();
-            if (lowerAvail.includes('in stock') || lowerAvail.includes('disponibile') || lowerAvail === 'in_stock') {
-                return 'Disponibile';
-            } else if (lowerAvail.includes('out of stock') || lowerAvail.includes('esaurito') || lowerAvail === 'out_of_stock') {
-                return 'Esaurito';
-            } else if (lowerAvail.includes('preorder') || lowerAvail.includes('prenotazione') || lowerAvail === 'preorder') {
-                return 'Preordine';
-            } else if (lowerAvail.includes('backorder') || lowerAvail.includes('ritardo') || lowerAvail === 'backorder') {
-                return 'Backorder';
-            }
-            
-            return availability;
+                break;
+            case 'price_desc':
+                filteredProducts.sort((a, b) => {
+                    const priceA = parseFloat(a.price) || 0;
+                    const priceB = parseFloat(b.price) || 0;
+                    return priceB - priceA;
+                });
+                break;
         }
         
-        // Format availability date based on availability status
-        function formatAvailabilityDate(availability, date) {
-            if (!availability) return '-';
-            
-            const lowerAvail = availability.toLowerCase();
-            if (lowerAvail.includes('in stock') || lowerAvail.includes('disponibile') || lowerAvail === 'in_stock') {
-                return 'Immediata';
-            }
-            
-            return date || '-';
-        }
+        // Aggiorna tabella
+        renderProductsTable(filteredProducts);
+    }
+    
+    // Rendering tabella prodotti
+    function renderProductsTable(products) {
+        const productsList = document.getElementById('productsList');
+        productsList.innerHTML = '';
         
-        // Format Google category for better readability
-        function formatGoogleCategory(category) {
-            if (!category) return '-';
-            
-            // If it's a long path, show only the last part
-            if (category.includes(' > ')) {
-                const parts = category.split(' > ');
-                return `${parts[parts.length - 1]}`;
-            }
-            
-            return category;
-        }
-        
-        // Get badge class for availability status
-        function getAvailabilityBadgeClass(availability) {
-            if (!availability) return 'bg-secondary';
-            
-            const lowerAvail = availability.toLowerCase();
-            if (lowerAvail.includes('in stock') || lowerAvail.includes('disponibile') || lowerAvail === 'in_stock') {
-                return 'bg-success';
-            } else if (lowerAvail.includes('out of stock') || lowerAvail.includes('esaurito') || lowerAvail === 'out_of_stock') {
-                return 'bg-danger';
-            } else if (lowerAvail.includes('preorder') || lowerAvail.includes('prenotazione') || lowerAvail === 'preorder') {
-                return 'bg-warning text-dark';
-            } else if (lowerAvail.includes('backorder') || lowerAvail.includes('ritardo') || lowerAvail === 'backorder') {
-                return 'bg-info text-dark';
-            }
-            
-            return 'bg-secondary';
-        }
-
-        // Render pagination controls
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredProducts.length / pageSize);
-            
-            if (totalPages <= 1) {
-                paginationEl.innerHTML = '';
-                return;
-            }
-
-            let paginationHTML = `
-                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" aria-label="Previous" onclick="changePage(${currentPage - 1})">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
+        if (products.length === 0) {
+            productsList.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <p>Nessun prodotto corrisponde ai filtri selezionati</p>
+                    </td>
+                </tr>
             `;
-
-            // Logic to show limited page numbers with ellipsis
-            const MAX_VISIBLE_PAGES = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(MAX_VISIBLE_PAGES / 2));
-            let endPage = Math.min(totalPages, startPage + MAX_VISIBLE_PAGES - 1);
-
-            if (endPage - startPage + 1 < MAX_VISIBLE_PAGES) {
-                startPage = Math.max(1, endPage - MAX_VISIBLE_PAGES + 1);
-            }
-
-            if (startPage > 1) {
-                paginationHTML += `
-                    <li class="page-item">
-                        <a class="page-link" href="#" onclick="changePage(1)">1</a>
-                    </li>
-                    ${startPage > 2 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
-                `;
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHTML += `
-                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                    </li>
-                `;
-            }
-
-            if (endPage < totalPages) {
-                paginationHTML += `
-                    ${endPage < totalPages - 1 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
-                    <li class="page-item">
-                        <a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a>
-                    </li>
-                `;
-            }
-
-            paginationHTML += `
-                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                    <a class="page-link" href="#" aria-label="Next" onclick="changePage(${currentPage + 1})">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            `;
-
-            paginationEl.innerHTML = paginationHTML;
+            document.getElementById('productsShowing').textContent = '0 prodotti';
+            return;
         }
-
-        // Change current page
-        window.changePage = function(page) {
-            event.preventDefault();
-            currentPage = page;
-            renderProducts();
-            window.scrollTo(0, 0);
-        };
-
-        // Show product detail in modal
-        window.showProductDetail = function(productIndex) {
-            const product = products[productIndex];
+        
+        products.forEach(product => {
+            const row = document.createElement('tr');
+            row.className = 'product-row';
             
-            document.getElementById('modalTitle').textContent = product.title || 'Titolo non disponibile';
-            document.getElementById('modalSku').textContent = product.id || '-';
-            document.getElementById('modalCategory').textContent = product.product_type || '-';
-            document.getElementById('modalGoogleCategory').textContent = product.google_product_category || '-';
-            document.getElementById('modalPrice').textContent = formatPrice(product.price);
-            document.getElementById('modalSalePrice').textContent = product.sale_price ? formatPrice(product.sale_price) : '';
-            document.getElementById('modalDescription').textContent = product.description || 'Nessuna descrizione disponibile';
-            document.getElementById('modalColor').textContent = product.color || '-';
-            document.getElementById('modalMaterial').textContent = product.material || '-';
-            document.getElementById('modalBrand').textContent = product.brand || '-';
-            document.getElementById('modalCondition').textContent = product.condition || '-';
-            
-            // Availability with badge
-            const availabilityBadge = document.getElementById('modalAvailabilityBadge');
-            availabilityBadge.textContent = formatAvailability(product.availability);
-            availabilityBadge.className = 'badge ' + getAvailabilityBadgeClass(product.availability);
-            
-            // Availability date
-            document.getElementById('modalAvailabilityDate').textContent = 
-                product.availability && product.availability.toLowerCase().includes('backorder') && product.availability_date ? 
-                ` (Disponibile dal: ${product.availability_date})` : '';
-            
-            const modalImg = document.getElementById('modalImg');
-            modalImg.src = product.image_link || '/static/placeholder.png';
-            modalImg.onerror = function() {
-                this.src = '/static/placeholder.png';
-            };
-            
-            const productLink = document.getElementById('productLink');
-            if (product.link) {
-                productLink.href = product.link;
-                productLink.style.display = 'block';
+            // Formattazione prezzo
+            let priceHtml = '';
+            if (product.sale_price && product.sale_price !== product.price) {
+                priceHtml = `
+                    <span class="product-sale-price">${formatPrice(product.sale_price)}</span><br>
+                    <small class="original-price">${formatPrice(product.price)}</small>
+                `;
             } else {
-                productLink.style.display = 'none';
+                priceHtml = `<span class="product-price">${formatPrice(product.price)}</span>`;
             }
             
-            const productModal = new bootstrap.Modal(document.getElementById('productModal'));
-            productModal.show();
+            // Formattazione disponibilità
+            const availabilityHtml = formatAvailabilityBadge(product.availability);
+            
+            row.innerHTML = `
+                <td>
+                    <img src="${product.image_link || '/api/placeholder.png'}" alt="${product.title}" 
+                         class="product-image" onerror="this.src='/api/placeholder.png'">
+                </td>
+                <td><small class="text-muted">${product.id || ''}</small></td>
+                <td>${product.title || 'Senza titolo'}</td>
+                <td>${product.brand || '-'}</td>
+                <td>${priceHtml}</td>
+                <td>${availabilityHtml}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary view-product" data-id="${product.id}">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            `;
+            
+            // Aggiungi evento per visualizzare dettagli
+            row.querySelector('.view-product').addEventListener('click', () => showProductDetails(product));
+            
+            productsList.appendChild(row);
+        });
+        
+        document.getElementById('productsShowing').textContent = `${products.length} di ${allProducts.length} prodotti`;
+    }
+    
+    // Mostra dettagli prodotto
+    function showProductDetails(product) {
+        document.getElementById('modalProductId').textContent = product.id || 'N/D';
+        document.getElementById('modalProductTitle').textContent = product.title || 'Senza titolo';
+        document.getElementById('modalProductBrand').textContent = product.brand || 'N/D';
+        document.getElementById('modalProductDescription').textContent = product.description || 'Nessuna descrizione disponibile';
+        
+        if (product.sale_price && product.sale_price !== product.price) {
+            document.getElementById('modalProductPrice').innerHTML = `
+                <span class="product-sale-price">${formatPrice(product.sale_price)}</span>
+                <small class="original-price">${formatPrice(product.price)}</small>
+            `;
+        } else {
+            document.getElementById('modalProductPrice').textContent = formatPrice(product.price);
+        }
+        
+        document.getElementById('modalProductAvailability').innerHTML = formatAvailabilityBadge(product.availability);
+        document.getElementById('modalProductMaterial').textContent = product.material || 'N/D';
+        document.getElementById('modalProductColor').textContent = product.color || 'N/D';
+        document.getElementById('modalProductCategory').textContent = product.product_type || product.google_product_category || 'N/D';
+        document.getElementById('modalProductCondition').textContent = product.condition || 'N/D';
+        
+        document.getElementById('modalProductImage').src = product.image_link || '/api/placeholder.png';
+        document.getElementById('modalProductImage').onerror = function() {
+            this.src = '/api/placeholder.png';
         };
-
-        // Event listeners
-        searchBtn.addEventListener('click', function() {
-            filters.search = searchInput.value.trim();
-            applyFilters();
-        });
-
-        searchInput.addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                filters.search = searchInput.value.trim();
-                applyFilters();
+        
+        const productLink = document.getElementById('modalProductLink');
+        if (product.link) {
+            productLink.href = product.link;
+            productLink.style.display = 'inline-block';
+        } else {
+            productLink.style.display = 'none';
+        }
+        
+        const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+        productModal.show();
+    }
+    
+    // Popola filtro marche
+    function populateBrandFilter(products) {
+        const selectBrand = document.getElementById('filterBrand');
+        const currentValue = selectBrand.value; // Salva il valore corrente
+        
+        // Azzera opzioni
+        selectBrand.innerHTML = '<option value="">Tutte le marche</option>';
+        
+        // Raccogli marche uniche
+        const brands = [...new Set(products.map(p => p.brand).filter(Boolean))];
+        brands.sort();
+        
+        // Aggiungi opzioni
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            
+            // Seleziona se era selezionato prima
+            if (brand === currentValue) {
+                option.selected = true;
             }
+            
+            selectBrand.appendChild(option);
         });
-
-        categoryFilter.addEventListener('change', function() {
-            filters.category = this.value;
-            applyFilters();
-        });
-
-        availabilityFilter.addEventListener('change', function() {
-            filters.availability = this.value;
-            applyFilters();
-        });
-
-        googleCategoryFilter.addEventListener('change', function() {
-            filters.googleCategory = this.value;
-            applyFilters();
-        });
-
-        resetBtn.addEventListener('click', resetFilters);
-
-        pageSizeSelect.addEventListener('change', function() {
-            pageSize = parseInt(this.value);
-            currentPage = 1;
-            renderProducts();
-        });
-
-        // Initial load
-        fetchProducts();
-    });
+    }
+    
+    // Aggiorna statistiche
+    function updateStatistics(products) {
+        // Totale prodotti
+        document.getElementById('totalProductsCount').textContent = products.length;
+        
+        // Prezzo medio
+        const totalPrice = products.reduce((sum, product) => sum + (parseFloat(product.price) || 0), 0);
+        const avgPrice = products.length > 0 ? totalPrice / products.length : 0;
+        document.getElementById('averagePrice').textContent = formatPrice(avgPrice);
+        
+        // Prodotti in offerta
+        const onSaleCount = products.filter(p => p.sale_price && p.sale_price !== p.price).length;
+        document.getElementById('onSaleCount').textContent = onSaleCount;
+    }
+    
+    // Funzione per formattare prezzo in Euro
+    function formatPrice(price) {
+        if (price === null || price === undefined) return "-";
+        return parseFloat(price).toFixed(2) + " €";
+    }
+    
+    // Formatta badge disponibilità
+    function formatAvailabilityBadge(availability) {
+        if (!availability) return "";
+        
+        const lowerAvailability = availability.toLowerCase();
+        let color = 'secondary';
+        
+        if (lowerAvailability.includes('in stock') || lowerAvailability.includes('disponibile')) {
+            color = 'success';
+        } else if (lowerAvailability.includes('out of stock') || lowerAvailability.includes('non disponibile')) {
+            color = 'danger';
+        } else if (lowerAvailability.includes('preorder') || lowerAvailability.includes('preordine')) {
+            color = 'warning';
+        } else if (lowerAvailability.includes('backorder') || lowerAvailability.includes('ordinabile')) {
+            color = 'info';
+        }
+        
+        return `<span class="badge bg-${color}">${availability}</span>`;
+    }
 </script>
 {% endblock %}

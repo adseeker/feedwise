@@ -3,9 +3,9 @@
 {% block title %}FeedWise - Dashboard{% endblock %}
 
 {% block styles %}
+<style>
 .card {
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .stats-card {
     text-align: center;
@@ -15,18 +15,32 @@
     padding: 1.5rem;
 }
 .stats-number {
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 2.5rem;
+    font-weight: 800;
     margin-bottom: 0.5rem;
 }
 .stats-label {
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--text-secondary);
+    font-weight: 300;
 }
 .table-responsive {
     border-radius: 10px;
     overflow: hidden;
 }
+.display-5 {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+.card-header {
+    border-bottom: none;
+    background-color: white;
+    font-weight: 700;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -52,34 +66,34 @@
 <!-- Stats Summary -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card stats-card bg-primary text-white">
+        <div class="card stats-card" style="background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); color: white;">
             <div class="card-body">
                 <div class="stats-number" id="totalProducts">--</div>
-                <div class="stats-label">Prodotti Totali</div>
+                <div class="stats-label" style="color: rgba(255,255,255,0.8);">Prodotti Totali</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card bg-success text-white">
+        <div class="card stats-card" style="background: linear-gradient(135deg, #5C33F6, #8B62FF); color: white;">
             <div class="card-body">
                 <div class="stats-number" id="totalSyncs">--</div>
-                <div class="stats-label">Sincronizzazioni</div>
+                <div class="stats-label" style="color: rgba(255,255,255,0.8);">Sincronizzazioni</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card bg-info text-white">
+        <div class="card stats-card" style="background: linear-gradient(135deg, #3671E9, #00D4FF); color: white;">
             <div class="card-body">
                 <div class="stats-number" id="lastSync">--</div>
-                <div class="stats-label">Ultima Sincronizzazione</div>
+                <div class="stats-label" style="color: rgba(255,255,255,0.8);">Ultima Sincronizzazione</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card stats-card bg-warning text-dark">
+        <div class="card stats-card" style="background: linear-gradient(135deg, #FF794D, #FFBD59); color: white;">
             <div class="card-body">
                 <div class="stats-number" id="totalChanges">--</div>
-                <div class="stats-label">Modifiche Prodotti</div>
+                <div class="stats-label" style="color: rgba(255,255,255,0.8);">Modifiche Prodotti</div>
             </div>
         </div>
     </div>

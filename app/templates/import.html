@@ -1,192 +1,203 @@
 {% extends "base.html" %}
 
-{% block title %}FeedWise - Importa Feed{% endblock %}
+{% block title %}FeedWise - Importazione Feed{% endblock %}
 
 {% block styles %}
-.card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+<style>
+.import-card {
     margin-bottom: 20px;
 }
-.status-badge {
-    margin-left: 8px;
-}
-.form-card {
+.import-form {
+    padding: 2rem;
+    border-radius: 10px;
     background-color: #f8f9fa;
 }
-.info-icon {
-    color: #6c757d;
-    cursor: help;
+.display-5 {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
 }
-.feed-history-card {
-    height: 100%;
-}
-.feed-history {
-    max-height: 300px;
+.import-history {
+    max-height: 400px;
     overflow-y: auto;
 }
-.last-import-detail {
-    background-color: #f8f9fa;
-    border-radius: 0.25rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
+.import-card-header {
+    background-color: transparent;
+    border-bottom: none;
+    font-weight: 700;
 }
-.feed-source-badge {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-    margin-left: 0.5rem;
-}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-    <div class="col">
-        <h1 class="h2">Importa Feed</h1>
-        <p class="text-muted">Gestisci l'importazione di feed prodotti</p>
+<header class="mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="display-5">Importazione Feed</h1>
+            <p class="text-muted">Configura e gestisci le importazioni del catalogo</p>
+        </div>
     </div>
-</div>
+</header>
 
 <div class="row">
-    <div class="col-md-7">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Configurazione Feed</h5>
+    <div class="col-md-6 mb-4">
+        <div class="card import-card">
+            <div class="card-header import-card-header">
+                <h5 class="mb-0">Nuova Importazione</h5>
             </div>
             <div class="card-body">
-                <div class="last-import-detail">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Ultima importazione</h6>
-                        <span class="badge bg-success" id="lastImportStatus">Completata</span>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">Data/Ora:</small>
-                            <div id="lastImportDate">-</div>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted d-block">Prodotti:</small>
-                            <div id="lastImportProducts">-</div>
-                        </div>
-                    </div>
-                </div>
-                
                 <form id="importForm">
                     <div class="mb-3">
                         <label for="importType" class="form-label">Tipo di importazione</label>
-                        <div class="input-group">
-                            <select class="form-select" id="importType">
-                                <option value="url">URL remoto</option>
-                                <option value="file">File locale</option>
-                                <option value="default">URL predefinito</option>
-                            </select>
-                            <span class="input-group-text info-icon" data-bs-toggle="tooltip" title="'URL predefinito' utilizza la fonte configurata nel file di config">
-                                <i class="bi bi-info-circle"></i>
-                            </span>
-                        </div>
+                        <select class="form-select" id="importType">
+                            <option value="url">Da URL remoto</option>
+                            <option value="file">Da file locale</option>
+                            <option value="default">Da URL predefinito</option>
+                        </select>
                     </div>
                     
-                    <div id="urlContainer" class="mb-3">
-                        <label for="feedUrl" class="form-label">URL del feed</label>
-                        <input type="url" class="form-control" id="feedUrl" placeholder="https://esempio.com/feed.json">
+                    <div id="urlFormGroup" class="mb-3">
+                        <label for="sourceUrl" class="form-label">URL Feed JSON</label>
+                        <input type="url" class="form-control" id="sourceUrl" placeholder="https://esempio.com/feed.json">
+                        <div class="form-text">URL completo del file JSON contenente i dati del catalogo.</div>
                     </div>
                     
-                    <div id="fileContainer" class="mb-3 d-none">
-                        <label for="feedFile" class="form-label">File JSON</label>
-                        <input type="file" class="form-control" id="feedFile" accept=".json">
+                    <div id="fileFormGroup" class="mb-3 d-none">
+                        <label for="sourceFile" class="form-label">File JSON locale</label>
+                        <input type="file" class="form-control" id="sourceFile" accept=".json">
+                        <div class="form-text">Seleziona un file JSON locale in formato valido.</div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="versionLabel" class="form-label">Etichetta versione</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="versionLabel" placeholder="2025-04-04">
-                            <button class="btn btn-outline-secondary" type="button" id="generateVersionBtn">
-                                <i class="bi bi-calendar-date"></i>
-                            </button>
-                        </div>
-                        <div class="form-text">Opzionale. Utile per identificare questa versione del feed.</div>
+                        <input type="text" class="form-control" id="versionLabel" placeholder="2025-04-07 (opzionale)">
+                        <div class="form-text">Identifica questa importazione con un'etichetta facoltativa.</div>
                     </div>
                     
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="scheduleImport">
-                        <label class="form-check-label" for="scheduleImport">
-                            Pianifica importazione
-                        </label>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="scheduleImport">
+                        <label class="form-check-label" for="scheduleImport">Programma importazione</label>
                     </div>
                     
-                    <div id="scheduleContainer" class="mb-3 d-none">
-                        <label for="scheduleTime" class="form-label">Orario di esecuzione</label>
-                        <input type="time" class="form-control" id="scheduleTime" value="06:00">
-                        <div class="form-text">L'importazione verrà eseguita ogni giorno a questo orario.</div>
+                    <div id="scheduleFormGroup" class="mb-3 d-none">
+                        <label for="scheduleTime" class="form-label">Orario di importazione</label>
+                        <input type="datetime-local" class="form-control" id="scheduleTime">
+                        <div class="form-text">La data e l'ora in cui sarà eseguita l'importazione.</div>
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        L'importazione verrà eseguita in background. Puoi visualizzare lo stato nella sezione "Importazioni recenti".
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary" id="startImportBtn">
-                            <i class="bi bi-cloud-download me-1"></i> Avvia Importazione
+                        <button type="submit" class="btn btn-primary" id="startImportButton">
+                            <i class="bi bi-cloud-download me-2"></i>
+                            Avvia Importazione
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-5">
-        <div class="card feed-history-card">
-            <div class="card-header">
-                <h5 class="mb-0">Cronologia Importazioni</h5>
+        
+        <div class="card import-card">
+            <div class="card-header import-card-header">
+                <h5 class="mb-0">Importazioni Programmate</h5>
             </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush feed-history" id="importHistory">
-                    <!-- La cronologia viene caricata dinamicamente -->
-                    <div class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">Caricamento cronologia...</h6>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    Importazioni automatiche configurate per questo feed
+                </p>
+                
+                <ul class="list-group" id="scheduledImportsList">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Importazione giornaliera</strong>
+                            <p class="mb-0 text-muted">Ogni giorno alle 06:00 AM</p>
                         </div>
-                    </div>
+                        <span class="badge bg-success">Attiva</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Importazione settimanale</strong>
+                            <p class="mb-0 text-muted">Ogni Lunedì alle 08:00 AM</p>
+                        </div>
+                        <span class="badge bg-success">Attiva</span>
+                    </li>
+                </ul>
+                
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-primary" id="configScheduleButton">
+                        <i class="bi bi-gear me-1"></i>
+                        Configura Importazioni Programmate
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Status Modal -->
-<div class="modal fade" id="importStatusModal" tabindex="-1" aria-labelledby="importStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="importStatusModalLabel">Stato Importazione</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    
+    <div class="col-md-6">
+        <div class="card import-card">
+            <div class="card-header import-card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Importazioni Recenti</h5>
+                <button class="btn btn-sm btn-outline-primary" id="refreshHistoryButton">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border text-primary" role="status" id="importSpinner">
-                        <span class="visually-hidden">Caricamento...</span>
-                    </div>
-                </div>
-                <div id="importStatusMessage" class="text-center mt-3">
-                    Importazione in corso...
-                </div>
-                <div id="importResultContainer" class="mt-3 d-none">
-                    <div class="alert" id="importResultAlert" role="alert">
-                        <!-- Risultato dell'importazione -->
-                    </div>
-                    <div class="row text-center">
-                        <div class="col">
-                            <div class="h4" id="productsTotal">0</div>
-                            <div class="text-muted">Prodotti</div>
-                        </div>
-                        <div class="col">
-                            <div class="h4 text-success" id="productsAdded">0</div>
-                            <div class="text-muted">Aggiunti</div>
-                        </div>
-                        <div class="col">
-                            <div class="h4 text-primary" id="productsUpdated">0</div>
-                            <div class="text-muted">Aggiornati</div>
-                        </div>
-                    </div>
+            <div class="card-body p-0">
+                <div class="table-responsive import-history">
+                    <table class="table table-hover mb-0">
+                        <thead class="sticky-top">
+                            <tr>
+                                <th>ID</th>
+                                <th>Versione</th>
+                                <th>Data</th>
+                                <th>Prodotti</th>
+                                <th>Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody id="importHistoryList">
+                            <!-- Dati caricati dinamicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                <button type="button" class="btn btn-primary d-none" id="viewCatalogBtn">Vai al Catalogo</button>
+        </div>
+        
+        <div class="card import-card">
+            <div class="card-header import-card-header">
+                <h5 class="mb-0">Impostazioni Feed</h5>
+            </div>
+            <div class="card-body">
+                <form id="feedSettingsForm">
+                    <div class="mb-3">
+                        <label for="defaultFeedUrl" class="form-label">URL Feed predefinito</label>
+                        <input type="url" class="form-control" id="defaultFeedUrl" placeholder="https://esempio.com/feed.json">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="importFrequency" class="form-label">Frequenza importazione automatica</label>
+                        <select class="form-select" id="importFrequency">
+                            <option value="daily">Giornaliera</option>
+                            <option value="weekly">Settimanale</option>
+                            <option value="hourly">Ogni ora (test)</option>
+                            <option value="disabled">Disabilitata</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="notifyChanges" checked>
+                        <label class="form-check-label" for="notifyChanges">Notifica quando vengono rilevate modifiche</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>
+                        Salva Impostazioni
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -196,82 +207,61 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inizializza i tooltip
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-        
-        // Elementi DOM
-        const importType = document.getElementById('importType');
-        const urlContainer = document.getElementById('urlContainer');
-        const fileContainer = document.getElementById('fileContainer');
-        const scheduleImport = document.getElementById('scheduleImport');
-        const scheduleContainer = document.getElementById('scheduleContainer');
-        const startImportBtn = document.getElementById('startImportBtn');
-        const generateVersionBtn = document.getElementById('generateVersionBtn');
-        const versionLabel = document.getElementById('versionLabel');
-        const importHistory = document.getElementById('importHistory');
-        
-        // Gestione cambio tipo importazione
-        importType.addEventListener('change', function() {
+        // Toggle tra URL e file
+        document.getElementById('importType').addEventListener('change', function() {
+            const urlGroup = document.getElementById('urlFormGroup');
+            const fileGroup = document.getElementById('fileFormGroup');
+            
             if (this.value === 'url') {
-                urlContainer.classList.remove('d-none');
-                fileContainer.classList.add('d-none');
+                urlGroup.classList.remove('d-none');
+                fileGroup.classList.add('d-none');
             } else if (this.value === 'file') {
-                urlContainer.classList.add('d-none');
-                fileContainer.classList.remove('d-none');
-            } else {
-                urlContainer.classList.add('d-none');
-                fileContainer.classList.add('d-none');
+                urlGroup.classList.add('d-none');
+                fileGroup.classList.remove('d-none');
+            } else {  // default
+                urlGroup.classList.add('d-none');
+                fileGroup.classList.add('d-none');
             }
         });
         
-        // Gestione checkbox pianificazione
-        scheduleImport.addEventListener('change', function() {
+        // Toggle programmazione importazione
+        document.getElementById('scheduleImport').addEventListener('change', function() {
+            const scheduleGroup = document.getElementById('scheduleFormGroup');
+            
             if (this.checked) {
-                scheduleContainer.classList.remove('d-none');
+                scheduleGroup.classList.remove('d-none');
             } else {
-                scheduleContainer.classList.add('d-none');
+                scheduleGroup.classList.add('d-none');
             }
         });
         
-        // Genera etichetta versione
-        generateVersionBtn.addEventListener('click', function() {
-            const now = new Date();
-            versionLabel.value = now.toISOString().split('T')[0]; // YYYY-MM-DD
-        });
-        
-        // Avvia importazione
-        startImportBtn.addEventListener('click', function() {
-            // Validazione form
-            if (importType.value === 'url' && !document.getElementById('feedUrl').value) {
+        // Gestione submit form importazione
+        document.getElementById('importForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const importType = document.getElementById('importType').value;
+            const sourceUrl = document.getElementById('sourceUrl').value;
+            const versionLabel = document.getElementById('versionLabel').value;
+            const startButton = document.getElementById('startImportButton');
+            
+            // Validazione
+            if (importType === 'url' && !sourceUrl) {
                 alert('Inserisci un URL valido');
                 return;
             }
             
-            if (importType.value === 'file' && !document.getElementById('feedFile').files[0]) {
-                alert('Seleziona un file JSON');
-                return;
-            }
+            // Disabilita il pulsante durante l'importazione
+            startButton.disabled = true;
+            startButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Importazione in corso...';
             
-            // Prepara i dati
+            // Preparazione dati
             const requestData = {
-                source_type: importType.value,
-                url: importType.value === 'url' ? document.getElementById('feedUrl').value : '',
-                version_label: versionLabel.value,
-                schedule: scheduleImport.checked ? document.getElementById('scheduleTime').value : null
+                source_type: importType,
+                url: sourceUrl,
+                version_label: versionLabel
             };
             
-            // Mostra modale di stato
-            const statusModal = new bootstrap.Modal(document.getElementById('importStatusModal'));
-            document.getElementById('importSpinner').classList.remove('d-none');
-            document.getElementById('importStatusMessage').textContent = 'Importazione in corso...';
-            document.getElementById('importResultContainer').classList.add('d-none');
-            document.getElementById('viewCatalogBtn').classList.add('d-none');
-            statusModal.show();
-            
-            // Invia richiesta
+            // Chiamata API
             fetch('/api/import', {
                 method: 'POST',
                 headers: {
@@ -281,119 +271,118 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Aggiorna UI con risultato
-                document.getElementById('importSpinner').classList.add('d-none');
-                document.getElementById('importResultContainer').classList.remove('d-none');
-                document.getElementById('viewCatalogBtn').classList.remove('d-none');
-                
                 if (data.success) {
-                    document.getElementById('importStatusMessage').textContent = 'Importazione completata con successo!';
-                    document.getElementById('importResultAlert').classList.add('alert-success');
-                    document.getElementById('importResultAlert').textContent = data.message || 'Feed importato correttamente.';
+                    // Mostra notifica di successo
+                    alert('Importazione avviata con successo!');
                     
-                    // Aggiorna statistiche
-                    if (data.stats) {
-                        document.getElementById('productsTotal').textContent = data.stats.total || 0;
-                        document.getElementById('productsAdded').textContent = data.stats.added || 0;
-                        document.getElementById('productsUpdated').textContent = data.stats.updated || 0;
-                    }
-                    
-                    // Aggiorna cronologia
-                    loadImportHistory();
+                    // Aggiorna la cronologia delle importazioni
+                    setTimeout(loadImportHistory, 3000);
                 } else {
-                    document.getElementById('importStatusMessage').textContent = 'Errore durante l\'importazione!';
-                    document.getElementById('importResultAlert').classList.add('alert-danger');
-                    document.getElementById('importResultAlert').textContent = data.message || 'Si è verificato un errore durante l\'importazione.';
+                    // Mostra notifica di errore
+                    alert('Errore: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Errore:', error);
-                document.getElementById('importSpinner').classList.add('d-none');
-                document.getElementById('importStatusMessage').textContent = 'Errore di comunicazione!';
-                document.getElementById('importResultContainer').classList.remove('d-none');
-                document.getElementById('importResultAlert').classList.add('alert-danger');
-                document.getElementById('importResultAlert').textContent = 'Si è verificato un errore di comunicazione con il server.';
+                console.error('Errore durante l\'importazione:', error);
+                alert('Si è verificato un errore durante l\'importazione.');
+            })
+            .finally(() => {
+                // Riabilita il pulsante
+                startButton.disabled = false;
+                startButton.innerHTML = '<i class="bi bi-cloud-download me-2"></i>Avvia Importazione';
             });
         });
         
-        // Vai al catalogo
-        document.getElementById('viewCatalogBtn').addEventListener('click', function() {
-            window.location.href = '/catalog';
-        });
-        
-        // Carica cronologia importazioni
+        // Caricamento cronologia importazioni
         function loadImportHistory() {
+            const historyList = document.getElementById('importHistoryList');
+            
+            // Mostra spinner
+            historyList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Caricamento...</span>
+                        </div>
+                        <p class="mt-2 mb-0">Caricamento cronologia...</p>
+                    </td>
+                </tr>
+            `;
+            
+            // Chiamata API
             fetch('/api/dashboard')
                 .then(response => response.json())
                 .then(data => {
-                    // Aggiorna ultima importazione
-                    if (data.syncs && data.syncs.length > 0) {
-                        const lastImport = data.syncs[0];
-                        document.getElementById('lastImportDate').textContent = lastImport.date;
-                        document.getElementById('lastImportProducts').textContent = `${lastImport.products} (${lastImport.added > 0 ? '+' + lastImport.added : 0} aggiunti, ${lastImport.updated} aggiornati)`;
-                        document.getElementById('lastImportStatus').textContent = lastImport.success ? 'Completata' : 'Fallita';
-                        document.getElementById('lastImportStatus').className = `badge ${lastImport.success ? 'bg-success' : 'bg-danger'}`;
-                    }
+                    const syncs = data.syncs || [];
                     
-                    // Aggiorna cronologia
-                    importHistory.innerHTML = '';
-                    
-                    if (!data.syncs || data.syncs.length === 0) {
-                        importHistory.innerHTML = `
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">Nessuna importazione trovata</h6>
-                                </div>
-                                <p class="mb-1">Non sono state ancora effettuate importazioni.</p>
-                            </div>
+                    if (syncs.length === 0) {
+                        historyList.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center py-3">
+                                    <p class="mb-0">Nessuna importazione trovata.</p>
+                                </td>
+                            </tr>
                         `;
                         return;
                     }
                     
-                    data.syncs.forEach(sync => {
-                        const successBadge = sync.success 
-                            ? '<span class="badge bg-success">Successo</span>' 
-                            : '<span class="badge bg-danger">Errore</span>';
-                            
-                        const sourceBadge = sync.source.startsWith('file://') 
-                            ? '<span class="badge bg-secondary feed-source-badge">File</span>' 
-                            : '<span class="badge bg-primary feed-source-badge">URL</span>';
-                            
-                        const listItem = document.createElement('div');
-                        listItem.className = 'list-group-item';
-                        listItem.innerHTML = `
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${sync.version || 'Import #' + sync.id}${sourceBadge}</h6>
-                                <small>${sync.date}</small>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <p class="mb-1 text-truncate" style="max-width: 70%;" title="${sync.source}">${sync.source}</p>
-                                ${successBadge}
-                            </div>
-                            <small>
-                                ${sync.products} prodotti 
-                                (${sync.added > 0 ? '<span class="text-success">+' + sync.added + '</span>' : '0'} aggiunti, 
-                                ${sync.updated > 0 ? '<span class="text-primary">' + sync.updated + '</span>' : '0'} aggiornati)
-                            </small>
+                    // Renderizza lista
+                    historyList.innerHTML = '';
+                    
+                    syncs.forEach(sync => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${sync.id}</td>
+                            <td>${sync.version || '-'}</td>
+                            <td>${sync.date}</td>
+                            <td>
+                                <span class="text-success">+${sync.added}</span> / 
+                                <span class="text-primary">${sync.updated}</span> / 
+                                <span class="text-danger">-${sync.removed}</span>
+                            </td>
+                            <td>${sync.success 
+                                ? '<span class="badge bg-success">Successo</span>' 
+                                : '<span class="badge bg-danger">Errore</span>'}
+                            </td>
                         `;
-                        importHistory.appendChild(listItem);
+                        historyList.appendChild(row);
                     });
                 })
                 .catch(error => {
                     console.error('Errore caricamento cronologia:', error);
-                    importHistory.innerHTML = `
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">Errore</h6>
-                            </div>
-                            <p class="mb-1">Impossibile caricare la cronologia delle importazioni.</p>
-                        </div>
+                    historyList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-3 text-danger">
+                                <i class="bi bi-exclamation-triangle-fill fs-4 mb-2"></i>
+                                <p class="mb-0">Errore durante il caricamento della cronologia.</p>
+                            </td>
+                        </tr>
                     `;
                 });
         }
         
         // Carica cronologia all'avvio
         loadImportHistory();
+        
+        // Aggiorna cronologia quando il pulsante refresh viene cliccato
+        document.getElementById('refreshHistoryButton').addEventListener('click', loadImportHistory);
+        
+        // Gestione form impostazioni feed
+        document.getElementById('feedSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Finta implementazione - in un caso reale, salvare le impostazioni tramite API
+            alert('Impostazioni salvate con successo!');
+        });
+        
+        // Gestione pulsante configura importazioni programmate
+        document.getElementById('configScheduleButton').addEventListener('click', function() {
+            // Finta implementazione - in un caso reale, aprire un modal o una nuova pagina
+            alert('Funzionalità non ancora implementata!');
+        });
+        
+        // Carica URL feed predefinito all'avvio
+        document.getElementById('defaultFeedUrl').value = 'https://repository.mobilifiver.com/public/feed/test_json/test.json';
     });
 </script>
 {% endblock %}

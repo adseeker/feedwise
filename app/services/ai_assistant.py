@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Modulo per l'integrazione con modelli di linguaggio.
 Fornisce funzionalità per interrogare il catalogo usando linguaggio naturale.
@@ -8,13 +7,9 @@ import json
 import logging
 from typing import Dict, Any, List, Optional
 import requests
-from catalog_query import execute_query, get_catalog_stats
+from app.services.catalog_query import execute_query, get_catalog_stats
 
-# Configurazione logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Logger
 logger = logging.getLogger("ai_assistant")
 
 # Costanti
@@ -48,13 +43,13 @@ def get_openai_api_key() -> str:
     # Se non trovata, prova a leggere da un file di configurazione
     if not api_key:
         try:
-            config_path = os.path.join(os.path.dirname(__file__), "config.json")
+            config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     config = json.load(f)
                     api_key = config.get("openai_api_key")
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Errore nella lettura del file di configurazione: {str(e)}")
     
     if not api_key:
         logger.warning("OpenAI API key non trovata. Imposta la variabile d'ambiente OPENAI_API_KEY.")
@@ -298,7 +293,7 @@ def get_similar_products(product_id: str, limit: int = 3) -> List[Dict[str, Any]
     Returns:
         Lista di prodotti simili
     """
-    from catalog_query import get_product_by_id, get_products_by_category
+    from app.services.catalog_query import get_product_by_id, get_products_by_category
         
     # Ottieni il prodotto di riferimento
     product = get_product_by_id(product_id)
@@ -325,49 +320,6 @@ def get_similar_products(product_id: str, limit: int = 3) -> List[Dict[str, Any]
     
     # Limita il numero di risultati
     return similar_products[:limit]
-
-def generate_ai_response(user_query: str) -> str:
-    """
-    Genera una risposta AI basata sulla query dell'utente e sui dati del catalogo.
-    
-    Args:
-        user_query: Query in linguaggio naturale dell'utente
-        
-    Returns:
-        str: Risposta generata dall'AI
-    """
-    # Esegui la query sul catalogo
-    query_result = execute_query(user_query)
-    intent = query_result.get('intent')
-    
-    # Formatta i risultati della query
-    formatted_result = format_query_result(query_result)
-    
-    # Arricchisci con dati aggiuntivi in base all'intento
-    if intent == "product_info" and query_result.get('success', False):
-        # Aggiungi prodotti simili
-        product_id = query_result.get('product', {}).get('id')
-        if product_id:
-            similar_products = get_similar_products(product_id)
-            if similar_products:
-                formatted_similar = format_products_list(similar_products)
-                formatted_result += "\n\nProdotti simili che potrebbero interessarti:\n" + formatted_similar
-    
-    # Costruisci il prompt per il modello di linguaggio
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_query},
-        {"role": "system", "content": f"Ecco le informazioni dal catalogo:\n\n{formatted_result}"}
-    ]
-    
-    # Genera la risposta con OpenAI
-    ai_response = query_openai(messages)
-    
-    # Se la chiamata API fallisce, restituisci direttamente i dati formattati
-    if not ai_response:
-        return f"Ecco le informazioni trovate nel catalogo:\n\n{formatted_result}"
-    
-    return ai_response
 
 def handle_conversation(conversation_history: List[Dict[str, str]], user_query: str) -> str:
     """
@@ -405,46 +357,3 @@ def handle_conversation(conversation_history: List[Dict[str, str]], user_query: 
         return f"Ecco le informazioni trovate nel catalogo:\n\n{formatted_result}"
     
     return ai_response
-
-def get_catalog_context() -> str:
-    """
-    Ottiene un contesto generale sul catalogo per fornire informazioni di base all'AI.
-    
-    Returns:
-        str: Informazioni di contesto sul catalogo
-    """
-    stats = get_catalog_stats()
-    formatted_stats = format_catalog_stats(stats)
-    
-    return f"""
-Contesto del catalogo:
-{formatted_stats}
-
-Quando rispondi alle domande dell'utente, utilizza queste informazioni generali
-sul catalogo insieme alle informazioni specifiche che ti fornirò per ogni domanda.
-"""
-
-# Funzione di test
-if __name__ == "__main__":
-    import time
-    
-    # Test di alcune query
-    test_queries = [
-        "Qual è il prezzo del prodotto MENAPPCEM?",
-        "Mostrami i tavoli disponibili",
-        "Quali prodotti sono sotto i 100 euro?",
-        "Quali sono le novità nel catalogo?",
-        "Dammi le statistiche del catalogo"
-    ]
-    
-    for query in test_queries:
-        print(f"\n\n--- Test query: '{query}' ---")
-        print("Elaborazione della query...")
-        
-        start_time = time.time()
-        response = generate_ai_response(query)
-        elapsed_time = time.time() - start_time
-        
-        print(f"Risposta generata in {elapsed_time:.2f} secondi:")
-        print(response)
-        print("\n" + "-" * 80)

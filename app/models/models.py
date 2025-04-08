@@ -1,7 +1,10 @@
+"""
+Modelli per il database dell'applicazione
+"""
 from sqlalchemy import Column, Integer, String, Float, Text, DateTime, ForeignKey, Boolean, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base  # Importa Base da database.py invece di crearne una nuova
+from app.models.database import Base
 
 class Product(Base):
     """
@@ -51,6 +54,9 @@ class Product(Base):
     # Metadati aggiuntivi
     raw_data = Column(JSON)  # Memorizza l'intero JSON grezzo per eventuali campi non mappati
     
+    # Relazioni
+    changes = relationship("ProductChange", back_populates="product")
+    
     def __repr__(self):
         return f"<Product(id='{self.id}', title='{self.title}')>"
 
@@ -72,8 +78,10 @@ class CatalogSync(Base):
     products_updated = Column(Integer, default=0)
     products_removed = Column(Integer, default=0)
     error_message = Column(Text)
-    # Aggiungere un campo alla tabella CatalogSync
     import_version = Column(String(20), unique=True, index=True)  # es. "2025-03-31"
+    
+    # Relazioni
+    changes = relationship("ProductChange", back_populates="sync")
     
     def __repr__(self):
         return f"<CatalogSync(id={self.id}, started_at='{self.started_at}', success={self.success})>"
@@ -96,8 +104,8 @@ class ProductChange(Base):
     changed_at = Column(DateTime, default=datetime.utcnow)
     
     # Relazioni
-    product = relationship("Product")
-    sync = relationship("CatalogSync")
+    product = relationship("Product", back_populates="changes")
+    sync = relationship("CatalogSync", back_populates="changes")
     
     def __repr__(self):
         return f"<ProductChange(product_id='{self.product_id}', field='{self.field_name}')>"

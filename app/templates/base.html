@@ -6,24 +6,72 @@
     <title>{% block title %}FeedWise{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <style>
+        :root {
+            --primary-color: #ff2d78;
+            --gradient-start: #ff2d78;
+            --gradient-end: #6a11cb;
+            --text-color: #333333;
+            --text-secondary: #6c757d;
+            --bg-light: #f8f9fa;
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
         body {
             padding-top: 20px;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, 
+                rgba(255, 45, 120, 0.05) 0%, 
+                rgba(106, 17, 203, 0.05) 100%
+            );
             min-height: 100vh;
+            font-family: var(--font-primary);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 800;
+        }
+        
         .navbar {
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background: white;
         }
+        
+        .navbar-brand {
+            font-weight: 900;
+            color: var(--primary-color) !important;
+        }
+        
         .navbar-brand img {
             height: 30px;
             margin-right: 8px;
         }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            transform: scale(1.05);
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+        }
+        
         .dropdown-item.active {
             background-color: #e9ecef;
             color: #212529;
         }
+        
         .nav-item .badge {
             position: relative;
             top: -8px;
@@ -31,20 +79,62 @@
             font-size: 0.6rem;
             padding: 0.15rem 0.35rem;
         }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e02367;
+            border-color: #e02367;
+            transform: scale(1.03);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .card {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: scale(1.02);
+        }
+        
         .footer {
             margin-top: auto;
-            background-color: #f8f9fa;
+            background-color: white;
             padding: 1rem 0;
             border-top: 1px solid #dee2e6;
             font-size: 0.85rem;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
         }
-        {% block styles %}{% endblock %}
     </style>
+    {% block styles %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
                 <i class="bi bi-box-seam text-primary"></i>
                 FeedWise
             </a>
@@ -54,19 +144,19 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
                             <i class="bi bi-speedometer2 me-1"></i>
                             Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/catalog' %}active{% endif %}" href="/catalog">
+                        <a class="nav-link {% if request.path == '/catalog' %}active{% endif %}" href="{{ url_for('main.catalog') }}">
                             <i class="bi bi-grid-3x3-gap me-1"></i>
                             Catalogo
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/chat' %}active{% endif %}" href="/chat">
+                        <a class="nav-link {% if request.path == '/chat' %}active{% endif %}" href="{{ url_for('main.chat') }}">
                             <i class="bi bi-chat-dots me-1"></i>
                             Chat AI
                         </a>
@@ -77,12 +167,12 @@
                             Strumenti
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="/import">
+                            <li><a class="dropdown-item" href="{{ url_for('main.import_page') }}">
                                 <i class="bi bi-cloud-download me-1"></i>
                                 Importa Feed
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/settings">
+                            <li><a class="dropdown-item" href="{{ url_for('main.settings') }}">
                                 <i class="bi bi-gear me-1"></i>
                                 Impostazioni
                             </a></li>
@@ -95,7 +185,7 @@
                         <i class="bi bi-database fs-5"></i>
                     </div>
                     <div class="vr me-3"></div>
-                    <button class="btn btn-outline-secondary btn-sm" type="button" id="refreshAll">
+                    <button class="btn btn-outline-primary btn-sm" type="button" id="refreshAll">
                         <i class="bi bi-arrow-repeat me-1"></i>
                         Aggiorna
                     </button>
@@ -126,6 +216,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Aggiornamento conteggio prodotti nel catalogo
